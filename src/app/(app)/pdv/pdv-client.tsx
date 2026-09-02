@@ -23,6 +23,7 @@ const PAYMENT_KINDS = [
   { kind: "debit", label: "Débito" },
   { kind: "credit", label: "Crédito à vista" },
   { kind: "credit_installments", label: "Crédito parcelado" },
+  { kind: "credit_plan", label: "Crediário" },
 ];
 
 export function PdvClient() {
@@ -118,10 +119,14 @@ export function PdvClient() {
   function addPayment() {
     const amount = Number(payAmount.replace(/\./g, "").replace(",", "."));
     if (!amount || amount <= 0) return;
+    if (payKind === "credit_plan" && !customer) {
+      setError("Crediário exige cliente vinculado à venda (F4).");
+      return;
+    }
     const change = payKind === "cash" && amount > remaining ? amount - remaining : 0;
     setPayments((prev) => [...prev, {
       kind: payKind, amount,
-      installments: payKind === "credit_installments" ? installments : 1,
+      installments: ["credit_installments", "credit_plan"].includes(payKind) ? installments : 1,
       changeGiven: change,
     }]);
     const newRemaining = Math.max(remaining - (amount - change), 0);
@@ -343,10 +348,10 @@ export function PdvClient() {
                 placeholder="Valor"
                 onKeyDown={(e) => e.key === "Enter" && addPayment()}
               />
-              {payKind === "credit_installments" && (
+              {["credit_installments", "credit_plan"].includes(payKind) && (
                 <select value={installments} onChange={(e) => setInstallments(Number(e.target.value))}
                   className="rounded-md border bg-transparent px-2 text-sm">
-                  {Array.from({ length: 11 }, (_, i) => i + 2).map((n) => (
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
                     <option key={n} value={n}>{n}x</option>
                   ))}
                 </select>

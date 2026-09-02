@@ -64,5 +64,5 @@ npx supabase gen types typescript --project-id jeqngqcpoeaezfpazbzk > src/lib/da
 - [x] **Fase 0** — fundação: schema completo, RLS, auth, papéis, auditoria, shell do app
 - [x] **Fase 1** — Módulos 1, 3 e 4: cadastros, estoque com IMEI, PDV e caixa
 - [x] **Fase 2** — Módulo 5: OS ponta a ponta + consulta pública por link
-- [ ] **Fase 3** — Módulos 6, 7 e 8: CRM, compras, financeiro
+- [x] **Fase 3** — Módulos 6, 7 e 8: CRM, compras, financeiro
 - [ ] **Fase 4** — Módulos 9, 10 e 12: fiscal, relatórios/BI, portal e PWA do técnico
