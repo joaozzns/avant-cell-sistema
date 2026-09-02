@@ -3,6 +3,7 @@ import { getSessionContext } from "@/lib/context";
 import { brl, fmtDateTime } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { IssueInvoiceButton } from "./issue-invoice";
 
 const KIND_LABEL: Record<string, string> = {
   cash: "Dinheiro", pix: "Pix", debit: "Débito",
@@ -20,7 +21,8 @@ export default async function SaleDetailPage({
   const { data: sale } = await supabase
     .from("sales")
     .select(`
-      id, number, status, subtotal, discount, total, notes, created_at, completed_at,
+      id, number, status, subtotal, discount, total, notes, created_at, completed_at, fiscal_doc_id,
+      fiscal_documents:fiscal_doc_id(kind, status, number, series, access_key, environment),
       customers(name, cpf_cnpj),
       profiles:seller_id(full_name),
       sale_items(id, qty, unit_price, discount, total, products(name), serialized_units(imei1)),
@@ -91,6 +93,38 @@ export default async function SaleDetailPage({
               <span>Total</span><span>{brl(sale.total)}</span>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle className="text-base">Fiscal</CardTitle></CardHeader>
+        <CardContent className="grid gap-2 text-sm">
+          {sale.fiscal_documents ? (() => {
+            const fd = sale.fiscal_documents as unknown as {
+              kind: string; status: string; number: number | null;
+              series: string | null; access_key: string | null; environment: string;
+            };
+            return (
+              <div className="grid gap-1">
+                <p>
+                  <span className="uppercase">{fd.kind}</span> nº {fd.number}/{fd.series} ·{" "}
+                  <Badge variant={fd.status === "authorized" ? "default" : fd.status === "rejected" ? "destructive" : "secondary"}>
+                    {fd.status === "authorized" ? "autorizada" : fd.status}
+                  </Badge>
+                  {fd.environment !== "production" && (
+                    <Badge variant="outline" className="ml-2">homologação</Badge>
+                  )}
+                </p>
+                {fd.access_key && (
+                  <p className="font-mono text-xs text-muted-foreground">chave: {fd.access_key}</p>
+                )}
+              </div>
+            );
+          })() : sale.status === "completed" ? (
+            <IssueInvoiceButton saleId={sale.id} />
+          ) : (
+            <p className="text-muted-foreground">Venda não faturável.</p>
+          )}
         </CardContent>
       </Card>
 

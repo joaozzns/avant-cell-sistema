@@ -1,0 +1,19 @@
+{
+  "name": "AVANT CELL",
+  "short_name": "AVANT CELL",
+  "description": "Gestão de loja e assistência técnica de celulares",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "any",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "PDV", "url": "/pdv", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Bancada (OS)", "url": "/os", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Abrir OS", "url": "/os/nova", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

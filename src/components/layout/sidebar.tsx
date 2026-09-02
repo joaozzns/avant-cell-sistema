@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, ShoppingCart, Package, Wrench, Users, Truck,
-  Wallet, FileText, BarChart3, Settings, Globe, KeyRound,
+  Wallet, FileText, BarChart3, Settings, Globe,
 } from "lucide-react";
 
 const MODULES = [
@@ -20,7 +20,6 @@ const MODULES = [
   { href: "/relatorios",  label: "Relatórios",     icon: BarChart3 },
   { href: "/admin",       label: "Administração",  icon: Settings },
   { href: "/portal",      label: "Portal do cliente", icon: Globe },
-  { href: "/acesso",      label: "Acesso",         icon: KeyRound },
 ];
 
 export function Sidebar() {

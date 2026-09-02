@@ -65,4 +65,11 @@ npx supabase gen types typescript --project-id jeqngqcpoeaezfpazbzk > src/lib/da
 - [x] **Fase 1** — Módulos 1, 3 e 4: cadastros, estoque com IMEI, PDV e caixa
 - [x] **Fase 2** — Módulo 5: OS ponta a ponta + consulta pública por link
 - [x] **Fase 3** — Módulos 6, 7 e 8: CRM, compras, financeiro
-- [ ] **Fase 4** — Módulos 9, 10 e 12: fiscal, relatórios/BI, portal e PWA do técnico
+- [x] **Fase 4** — Módulos 9, 10 e 12: fiscal, relatórios/BI, portal e PWA
+
+## Pendências para evolução
+
+- Emissão fiscal real: contratar gateway (Focus NFe já suportado — informar token em Fiscal → Configurações); hoje opera em modo simulado de homologação
+- WhatsApp automático (Cloud API) — hoje os envios abrem o wa.me com mensagem pronta
+- Campanhas de CRM, NPS, devolução de venda, transferência entre lojas, inventário, comissões e conciliação de cartões: schema pronto no banco, telas na próxima rodada
+- Convite de usuários por e-mail (hoje: novo usuário se cadastra e o admin vincula loja/papel)
