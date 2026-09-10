@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
+import { Trilha } from "./trilha";
 import { cn } from "@/lib/utils";
 
 export function AppShell({
@@ -60,7 +61,10 @@ export function AppShell({
             else setGaveta((v) => !v);
           }}
         />
-        <main className="flex-1 p-4 md:p-6">{children}</main>
+        <main className="flex-1 p-4 md:p-6">
+          <Trilha />
+          {children}
+        </main>
       </div>
     </div>
   );

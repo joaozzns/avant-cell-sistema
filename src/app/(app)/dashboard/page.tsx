@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getSessionContext } from "@/lib/context";
 import { brl } from "@/lib/format";
-import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { Atalho, Indicador } from "@/components/painel";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -74,8 +73,6 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <Breadcrumb trilha={[{ label: "Dashboard diário" }]} />
-
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
         {/* coluna principal */}
         <div className="grid content-start gap-5">
