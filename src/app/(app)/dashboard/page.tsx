@@ -1,106 +1,240 @@
 import Link from "next/link";
 import { getSessionContext } from "@/lib/context";
 import { brl } from "@/lib/format";
+import { Breadcrumb } from "@/components/layout/breadcrumb";
+import { Atalho, Indicador } from "@/components/painel";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Card, CardContent, CardDescription, CardHeader, CardTitle,
-} from "@/components/ui/card";
+  ShoppingCart, Users, Package, Wrench, Wallet, FileText, Boxes,
+  CalendarClock, Cake, TriangleAlert, Info, BellRing, CircleDollarSign,
+  Settings, ArrowRight,
+} from "lucide-react";
 
 export default async function DashboardPage() {
   const { supabase, storeId, storeName } = await getSessionContext();
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const in7days = new Date();
-  in7days.setDate(in7days.getDate() + 7);
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const hojeISO = hoje.toISOString().slice(0, 10);
+  const em7dias = new Date();
+  em7dias.setDate(em7dias.getDate() + 7);
 
-  const [{ data: todaySales }, { count: openOs }, { data: receivables }, { data: lowStock }] =
-    await Promise.all([
-      supabase
-        .from("sales")
-        .select("total")
-        .eq("store_id", storeId)
-        .eq("status", "completed")
-        .gte("created_at", today.toISOString()),
-      supabase
-        .from("service_orders")
-        .select("id", { count: "exact", head: true })
-        .eq("store_id", storeId)
-        .not("status", "in", "(delivered,canceled)"),
-      supabase
-        .from("receivables")
-        .select("amount, paid_amount")
-        .eq("store_id", storeId)
-        .in("status", ["open", "partial"])
-        .lte("due_date", in7days.toISOString().slice(0, 10)),
-      supabase
-        .from("stock_items")
-        .select("qty, min_qty, products(name)")
-        .eq("store_id", storeId)
-        .gt("min_qty", 0),
-    ]);
+  const [
+    { data: vendasHoje },
+    { count: osAbertas },
+    { data: aReceber },
+    { data: estoqueBaixo },
+    { count: pagarHoje },
+    { count: osAtrasadas },
+    { data: aniversariantes },
+  ] = await Promise.all([
+    supabase
+      .from("sales").select("total")
+      .eq("store_id", storeId).eq("status", "completed")
+      .gte("created_at", hoje.toISOString()),
+    supabase
+      .from("service_orders").select("id", { count: "exact", head: true })
+      .eq("store_id", storeId).not("status", "in", "(delivered,canceled)"),
+    supabase
+      .from("receivables").select("amount, paid_amount")
+      .eq("store_id", storeId).in("status", ["open", "partial"])
+      .lte("due_date", em7dias.toISOString().slice(0, 10)),
+    supabase
+      .from("stock_items").select("qty, min_qty, products(name)")
+      .eq("store_id", storeId).gt("min_qty", 0),
+    supabase
+      .from("payables").select("id", { count: "exact", head: true })
+      .eq("store_id", storeId).in("status", ["open", "partial"])
+      .lte("due_date", hojeISO),
+    supabase
+      .from("service_orders").select("id", { count: "exact", head: true })
+      .eq("store_id", storeId).not("status", "in", "(delivered,canceled)")
+      .lt("deadline", new Date().toISOString()),
+    /* aniversario nao da para filtrar por mes/dia no PostgREST sem funcao no
+       banco, entao trazemos so a coluna e comparamos aqui. */
+    supabase
+      .from("customers").select("id, birthdate")
+      .not("birthdate", "is", null).eq("active", true).limit(4000),
+  ]);
 
-  const revenue = (todaySales ?? []).reduce((s, v) => s + Number(v.total), 0);
-  const toReceive = (receivables ?? []).reduce(
+  const faturamento = (vendasHoje ?? []).reduce((s, v) => s + Number(v.total), 0);
+  const receber = (aReceber ?? []).reduce(
     (s, r) => s + Number(r.amount) - Number(r.paid_amount), 0);
-  const lowItems = (lowStock ?? []).filter((s) => Number(s.qty) <= Number(s.min_qty));
+  const baixos = (estoqueBaixo ?? []).filter((s) => Number(s.qty) <= Number(s.min_qty));
+  const mesDia = `${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`;
+  const fazemAniversario = (aniversariantes ?? []).filter(
+    (c) => typeof c.birthdate === "string" && c.birthdate.slice(5) === mesDia
+  ).length;
 
-  const kpis = [
-    { label: "Faturamento do dia", value: brl(revenue), href: "/pdv/vendas" },
-    { label: "Vendas hoje", value: String((todaySales ?? []).length), href: "/pdv/vendas" },
-    { label: "OS abertas", value: String(openOs ?? 0), href: "/os" },
-    { label: "A receber (7 dias)", value: brl(toReceive), href: "/financeiro" },
-  ];
+  const avisos = [
+    pagarHoje ? { texto: `${pagarHoje} conta(s) a pagar vencendo hoje ou vencida(s)`, href: "/financeiro/pagar" } : null,
+    osAtrasadas ? { texto: `${osAtrasadas} OS com prazo de entrega vencido`, href: "/os" } : null,
+    baixos.length ? { texto: `${baixos.length} item(ns) com estoque abaixo do mínimo`, href: "/estoque" } : null,
+  ].filter(Boolean) as { texto: string; href: string }[];
 
   return (
-    <div className="grid gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Loja: {storeName}</p>
-      </div>
+    <>
+      <Breadcrumb trilha={[{ label: "Dashboard diário" }]} />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {kpis.map((kpi) => (
-          <Link key={kpi.label} href={kpi.href}>
-            <Card className="transition-colors hover:border-primary">
-              <CardHeader className="pb-2">
-                <CardDescription>{kpi.label}</CardDescription>
-                <CardTitle className="text-2xl">{kpi.value}</CardTitle>
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+        {/* coluna principal */}
+        <div className="grid content-start gap-5">
+          <Card>
+            <CardHeader className="border-b py-4">
+              <CardTitle className="text-base">Atalhos</CardTitle>
+              <CardAction>
+                <Link
+                  href="/admin"
+                  className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                >
+                  <Settings className="h-3.5 w-3.5" />
+                  Configurar
+                </Link>
+              </CardAction>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2 pt-5">
+              <Atalho href="/pdv" tom="primario" icone={ShoppingCart}>Nova venda</Atalho>
+              <Atalho href="/clientes" icone={Users}>Clientes</Atalho>
+              <Atalho href="/estoque" icone={Package}>Estoque</Atalho>
+              <Atalho href="/os/nova" icone={Wrench}>Ordem de serviço</Atalho>
+              <Atalho href="/pdv/caixa" icone={CircleDollarSign}>Abrir / fechar caixa</Atalho>
+              {fazemAniversario > 0 && (
+                <Atalho href="/clientes" tom="aviso" icone={Cake}>
+                  {fazemAniversario} aniversariante(s) hoje
+                </Atalho>
+              )}
+              {Boolean(pagarHoje) && (
+                <Atalho href="/financeiro/pagar" tom="alerta" icone={TriangleAlert}>
+                  {pagarHoje} conta(s) a pagar vencendo
+                </Atalho>
+              )}
+              {Boolean(osAtrasadas) && (
+                <Atalho href="/os" tom="alerta" icone={CalendarClock}>
+                  {osAtrasadas} OS com prazo vencido
+                </Atalho>
+              )}
+              <Atalho href="/estoque/aparelhos" icone={Boxes}>Entrada de aparelho</Atalho>
+              <Atalho href="/compras" icone={Package}>Compras</Atalho>
+              <Atalho href="/financeiro" icone={Wallet}>Financeiro</Atalho>
+              <Atalho href="/fiscal" icone={FileText}>Fiscal</Atalho>
+              <Atalho href="/pdv/vendas" icone={ShoppingCart}>Vendas — PDV</Atalho>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="border-b py-4">
+              <CardTitle className="text-base">Central de avisos</CardTitle>
+              <CardAction>
+                <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <BellRing className="h-3.5 w-3.5" />
+                  {avisos.length} aviso(s)
+                </span>
+              </CardAction>
+            </CardHeader>
+            <CardContent className="grid gap-2 pt-5">
+              {avisos.length === 0 ? (
+                <div className="flex items-center gap-2.5 rounded-lg border border-primary/25 bg-primary/8 px-4 py-3 text-sm text-primary">
+                  <Info className="h-4 w-4 shrink-0" />
+                  Não há notificações.
+                </div>
+              ) : (
+                avisos.map((a) => (
+                  <Link
+                    key={a.texto}
+                    href={a.href}
+                    className="group flex items-center gap-2.5 rounded-lg border border-destructive/25 bg-destructive/8 px-4 py-3 text-sm text-destructive transition-colors hover:bg-destructive/15"
+                  >
+                    <TriangleAlert className="h-4 w-4 shrink-0" />
+                    <span className="min-w-0 flex-1">{a.texto}</span>
+                    <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                ))
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="border-b py-4">
+              <CardTitle className="text-base">Dashboard diário</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                {storeName} · {hoje.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
+              </p>
+            </CardHeader>
+            <CardContent className="grid gap-4 pt-5 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { rotulo: "Faturamento do dia", valor: brl(faturamento), href: "/pdv/vendas" },
+                { rotulo: "Vendas hoje", valor: String((vendasHoje ?? []).length), href: "/pdv/vendas" },
+                { rotulo: "OS abertas", valor: String(osAbertas ?? 0), href: "/os" },
+                { rotulo: "A receber (7 dias)", valor: brl(receber), href: "/financeiro/receber" },
+              ].map((k) => (
+                <Link
+                  key={k.rotulo}
+                  href={k.href}
+                  className="rounded-xl border bg-background p-4 transition-colors hover:border-primary"
+                >
+                  <p className="text-xs text-muted-foreground">{k.rotulo}</p>
+                  <p className="mt-1.5 text-2xl font-bold tracking-tight">{k.valor}</p>
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* coluna de indicadores */}
+        <div className="grid content-start gap-4 sm:grid-cols-2 xl:grid-cols-1">
+          <Indicador
+            valor={osAbertas ?? 0}
+            rotulo="Ordens de serviço em aberto"
+            href="/os"
+            icone={Wrench}
+          />
+          <Indicador
+            valor={baixos.length}
+            rotulo="Estoque abaixo do mínimo"
+            href="/estoque"
+            icone={Package}
+            tom="acento"
+          />
+          <Indicador
+            valor={brl(receber)}
+            rotulo="A receber nos próximos 7 dias"
+            href="/financeiro/receber"
+            icone={Wallet}
+            tom="sucesso"
+          />
+
+          {baixos.length > 0 && (
+            <Card className="sm:col-span-2 xl:col-span-1">
+              <CardHeader className="border-b py-4">
+                <CardTitle className="text-base">Repor no estoque</CardTitle>
               </CardHeader>
+              <CardContent className="grid gap-1.5 pt-4 text-sm">
+                {baixos.slice(0, 6).map((s, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2"
+                  >
+                    <span className="min-w-0 truncate">
+                      {(s.products as { name?: string } | null)?.name ?? "Produto"}
+                    </span>
+                    <span className="shrink-0 text-xs font-semibold text-destructive">
+                      {Number(s.qty)} / mín. {Number(s.min_qty)}
+                    </span>
+                  </div>
+                ))}
+                {baixos.length > 6 && (
+                  <Link
+                    href="/estoque"
+                    className="mt-1 text-xs font-medium text-primary hover:underline"
+                  >
+                    ver os outros {baixos.length - 6}
+                  </Link>
+                )}
+              </CardContent>
             </Card>
-          </Link>
-        ))}
+          )}
+        </div>
       </div>
-
-      {lowItems.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base text-destructive">
-              Estoque abaixo do mínimo ({lowItems.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-1 text-sm">
-            {lowItems.slice(0, 8).map((s, i) => (
-              <div key={i} className="flex justify-between rounded border px-3 py-1.5">
-                <span>{(s.products as { name?: string } | null)?.name}</span>
-                <span className="text-destructive">{Number(s.qty)} / mín. {Number(s.min_qty)}</span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Atalhos</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-2 text-sm">
-          <Link href="/pdv" className="rounded-md border px-3 py-1.5 hover:bg-muted">Nova venda</Link>
-          <Link href="/clientes/novo" className="rounded-md border px-3 py-1.5 hover:bg-muted">Novo cliente</Link>
-          <Link href="/estoque/novo" className="rounded-md border px-3 py-1.5 hover:bg-muted">Novo produto</Link>
-          <Link href="/estoque/aparelhos" className="rounded-md border px-3 py-1.5 hover:bg-muted">Entrada de aparelho</Link>
-          <Link href="/pdv/caixa" className="rounded-md border px-3 py-1.5 hover:bg-muted">Caixa</Link>
-        </CardContent>
-      </Card>
-    </div>
+    </>
   );
 }

@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
+import { AppShell } from "@/components/layout/app-shell";
 
 export default async function AppLayout({
   children,
@@ -22,25 +21,30 @@ export default async function AppLayout({
 
   if (!profile?.company_id) redirect("/onboarding");
 
-  const { data: userStore } = await supabase
-    .from("user_stores")
-    .select("store_id, stores(name)")
-    .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
+  const [{ data: userStore }, { data: company }] = await Promise.all([
+    supabase
+      .from("user_stores")
+      .select("store_id, stores(name)")
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("companies")
+      .select("name")
+      .eq("id", profile.company_id)
+      .maybeSingle(),
+  ]);
 
   const storeName = (userStore?.stores as { name?: string } | null)?.name;
 
   return (
-    <div className="flex min-h-dvh">
-      <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Header
-          userName={profile?.full_name || user.email || ""}
-          storeName={storeName}
-        />
-        <main className="flex-1 bg-muted/30 p-6">{children}</main>
-      </div>
-    </div>
+    <AppShell
+      nome={profile?.full_name || user.email || ""}
+      email={user.email || ""}
+      storeName={storeName}
+      companyName={company?.name}
+    >
+      {children}
+    </AppShell>
   );
 }

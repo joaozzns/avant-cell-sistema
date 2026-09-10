@@ -1,7 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_ROUTES = ["/login", "/cadastro", "/recuperar-senha", "/acompanhar"];
+/* "/auth/sessao" recebe a sessao vinda da landing e precisa rodar sem sessao
+   ainda — e justamente a pagina que vai cria-la. */
+const PUBLIC_ROUTES = [
+  "/login",
+  "/cadastro",
+  "/recuperar-senha",
+  "/acompanhar",
+  "/auth/sessao",
+];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
