@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
 import { parseDecimal } from "@/lib/format";
+import { imeiValido } from "@/lib/imei";
 
 export type ActionState = { error?: string; ok?: boolean };
 
@@ -45,9 +46,19 @@ export async function createOs(input: {
   }
   if (!customerId) return { error: "Vincule ou cadastre o cliente." };
 
-  // Aparelho do cliente: reaproveita pelo IMEI ou cria
+  // Aparelho do cliente: reaproveita pelo IMEI ou cria.
+  // O campo da tela aceita "IMEI / nº de série". Só vai para a coluna imei o
+  // que for IMEI válido; 15 dígitos com verificador errado é erro de digitação
+  // e volta para a pessoa corrigir; o resto é tratado como número de série.
   let deviceId: string | null = null;
-  const imei = input.device.imei?.replace(/\D/g, "") || null;
+  const identificador = input.device.imei?.trim() ?? "";
+  const digitos = identificador.replace(/\D/g, "");
+  const ehImei = /^\d{15}$/.test(digitos) && digitos.length === identificador.replace(/[\s.\-/]/g, "").length;
+  if (ehImei && !imeiValido(digitos)) {
+    return { error: "IMEI inválido: o dígito verificador não confere. Confira os 15 dígitos." };
+  }
+  const imei = ehImei ? digitos : null;
+  const serialNumber = !ehImei && identificador ? identificador : null;
   if (imei) {
     const { data: existing } = await supabase
       .from("customer_devices")
@@ -65,6 +76,7 @@ export async function createOs(input: {
         customer_id: customerId,
         model_text: `${input.device.brand} ${input.device.model}`.trim(),
         imei,
+        serial_number: serialNumber,
         color: input.device.color || null,
         capacity: input.device.capacity || null,
       })

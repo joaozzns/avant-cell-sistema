@@ -217,16 +217,8 @@ export function simNao(v: unknown): boolean | null {
   return null;
 }
 
-export function imeiValido(imei: string): boolean {
-  if (!/^\d{15}$/.test(imei)) return false;
-  let soma = 0;
-  for (let i = 0; i < 15; i++) {
-    let n = +imei[i];
-    if (i % 2 === 1) { n *= 2; if (n > 9) n -= 9; }
-    soma += n;
-  }
-  return soma % 10 === 0;
-}
+export { imeiValido } from "./imei";
+import { imeiValido } from "./imei";
 
 function cpfValido(c: string) {
   if (!/^\d{11}$/.test(c) || /^(\d)\1+$/.test(c)) return false;

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
 import { parseDecimal } from "@/lib/format";
+import { imeiValido } from "@/lib/imei";
 
 export type ActionState = { error?: string; ok?: boolean };
 
@@ -114,8 +115,19 @@ export async function registerUnit(
   const productId = String(formData.get("product_id") ?? "");
   const imei1 = String(formData.get("imei1") ?? "").trim();
 
+  const imei2 = String(formData.get("imei2") ?? "").trim();
+
   if (!productId) return { error: "Selecione o produto (modelo do aparelho)." };
   if (!imei1) return { error: "Informe o IMEI." };
+  /* o banco tambem recusa, mas conferir aqui da uma mensagem clara e protege
+     mesmo onde a trava do banco ainda nao foi aplicada */
+  if (!imeiValido(imei1)) {
+    return { error: "IMEI inválido: o dígito verificador não confere (15 dígitos, padrão Luhn)." };
+  }
+  if (imei2 && !imeiValido(imei2)) {
+    return { error: "IMEI 2 inválido: o dígito verificador não confere (15 dígitos, padrão Luhn)." };
+  }
+  if (imei2 && imei2 === imei1) return { error: "IMEI 2 igual ao IMEI 1." };
 
   const { data: unit, error } = await supabase
     .from("serialized_units")
@@ -124,7 +136,7 @@ export async function registerUnit(
       store_id: storeId,
       product_id: productId,
       imei1,
-      imei2: String(formData.get("imei2") ?? "").trim() || null,
+      imei2: imei2 || null,
       serial_number: String(formData.get("serial_number") ?? "").trim() || null,
       color: String(formData.get("color") ?? "").trim() || null,
       capacity: String(formData.get("capacity") ?? "").trim() || null,
@@ -137,7 +149,13 @@ export async function registerUnit(
 
   if (error) {
     if (error.code === "23505") return { error: "Este IMEI já está cadastrado no sistema." };
-    if (error.code === "23514") return { error: "IMEI inválido: o dígito verificador não confere (15 dígitos, padrão Luhn)." };
+    if (error.code === "23514") {
+      return {
+        error: /imei2/.test(error.message)
+          ? "IMEI 2 inválido: o dígito verificador não confere (15 dígitos, padrão Luhn)."
+          : "IMEI inválido: o dígito verificador não confere (15 dígitos, padrão Luhn).",
+      };
+    }
     return { error: error.message };
   }
 
