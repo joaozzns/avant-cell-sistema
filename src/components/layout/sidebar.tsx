@@ -153,11 +153,12 @@ export function Sidebar({
 
   return (
     <aside className="flex h-full w-[272px] shrink-0 flex-col border-r bg-sidebar">
-      {/* marca: o fundo acompanha o tema da barra lateral; a versao da logo troca
-          por CSS (dark:), sem depender do estado do React, entao nao pisca na carga */}
+      {/* marca: sem nenhum preenchimento azul — nem na faixa, nem no quadrado da
+          logo. Contorno escuro no tema claro, branco no escuro, trocado por CSS
+          (dark:) para nao piscar na carga */}
       <div className="flex h-[70px] shrink-0 items-center border-b bg-sidebar px-5">
         <Image
-          src="/logo-cor.svg"
+          src="/logo-escura.svg"
           alt="Avant Cell"
           width={199}
           height={48}
