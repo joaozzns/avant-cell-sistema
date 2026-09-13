@@ -33,6 +33,7 @@ const NOMES: Record<string, string> = {
   admin: "Administração",
   auditoria: "Auditoria",
   portal: "Portal do cliente",
+  importar: "Importar dados",
 };
 
 /* Rotas que existem como pagina — as demais viram texto sem link, para a trilha
@@ -45,7 +46,7 @@ const NAVEGAVEIS = new Set([
   "/financeiro", "/financeiro/receber", "/financeiro/pagar", "/financeiro/dre",
   "/fiscal", "/fiscal/configuracoes",
   "/relatorios", "/relatorios/vendas", "/relatorios/assistencia", "/relatorios/estoque",
-  "/admin", "/admin/auditoria", "/portal",
+  "/admin", "/admin/auditoria", "/portal", "/importar",
 ]);
 
 export function Trilha() {

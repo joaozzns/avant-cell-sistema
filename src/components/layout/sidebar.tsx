@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, ShoppingCart, Package, Wrench, Users, Wallet,
-  FileText, BarChart3, Settings, Globe, ChevronRight, Search, Moon, Sun,
+  FileText, BarChart3, Settings, Globe, ChevronRight, Search, Moon, Sun, Upload,
 } from "lucide-react";
 
 type Item = { href: string; label: string };
@@ -81,6 +81,7 @@ const MODULOS: Modulo[] = [
       { href: "/admin/auditoria", label: "Auditoria" },
     ],
   },
+  { href: "/importar", label: "Importar dados", icon: Upload },
   { href: "/portal", label: "Portal do cliente", icon: Globe },
 ];
 
@@ -152,15 +153,24 @@ export function Sidebar({
 
   return (
     <aside className="flex h-full w-[272px] shrink-0 flex-col border-r bg-sidebar">
-      {/* marca */}
-      <div className="flex h-[70px] shrink-0 items-center bg-primary px-5">
+      {/* marca: o fundo acompanha o tema da barra lateral; a versao da logo troca
+          por CSS (dark:), sem depender do estado do React, entao nao pisca na carga */}
+      <div className="flex h-[70px] shrink-0 items-center border-b bg-sidebar px-5">
+        <Image
+          src="/logo-cor.svg"
+          alt="Avant Cell"
+          width={199}
+          height={48}
+          priority
+          className="h-12 w-auto dark:hidden"
+        />
         <Image
           src="/logo-branca.svg"
           alt="Avant Cell"
-          width={168}
-          height={41}
+          width={199}
+          height={48}
           priority
-          className="h-[38px] w-auto"
+          className="hidden h-12 w-auto dark:block"
         />
       </div>
 
