@@ -35,10 +35,11 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Não remover: mantém a sessão renovada
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  /* Não remover: renova a sessão e regrava os cookies quando o token expira.
+     getClaims() confere a assinatura localmente (ES256 + JWKS em cache) em vez
+     de ir ao Supabase Auth a cada requisição, como getUser() fazia. */
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims?.sub ? data.claims : null;
 
   const { pathname } = request.nextUrl;
   const isPublic =
