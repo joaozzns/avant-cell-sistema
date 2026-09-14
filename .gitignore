@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ids gerados por scripts/dados-demo.mjs neste banco (usados pelo "limpar")
+scripts/dados-demo-ids.json
