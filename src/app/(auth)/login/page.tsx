@@ -1,56 +1,11 @@
-"use client";
+import { LoginForm } from "./login-form";
 
-import { useActionState } from "react";
-import Link from "next/link";
-import { login } from "../actions";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card, CardContent, CardDescription, CardHeader, CardTitle,
-} from "@/components/ui/card";
-
-export default function LoginPage() {
-  const [state, formAction, pending] = useActionState<{ error?: string }, FormData>(login, {});
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Entrar</CardTitle>
-        <CardDescription>Acesse com seu e-mail e senha</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form action={formAction} className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">E-mail</Label>
-            <Input id="email" name="email" type="email" required autoComplete="email" />
-          </div>
-          <div className="grid gap-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Senha</Label>
-              <Link
-                href="/recuperar-senha"
-                className="text-xs text-muted-foreground underline-offset-4 hover:underline"
-              >
-                Esqueci a senha
-              </Link>
-            </div>
-            <Input id="password" name="password" type="password" required autoComplete="current-password" />
-          </div>
-          {state?.error && (
-            <p className="text-sm text-destructive">{state.error}</p>
-          )}
-          <Button type="submit" disabled={pending}>
-            {pending ? "Entrando…" : "Entrar"}
-          </Button>
-          <p className="text-center text-sm text-muted-foreground">
-            Primeira vez aqui?{" "}
-            <Link href="/cadastro" className="underline underline-offset-4">
-              Criar conta
-            </Link>
-          </p>
-        </form>
-      </CardContent>
-    </Card>
-  );
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ convite?: string }>;
+}) {
+  const { convite } = await searchParams;
+  const valido = convite && /^[0-9a-f-]{36}$/i.test(convite) ? convite : undefined;
+  return <LoginForm convite={valido} />;
 }

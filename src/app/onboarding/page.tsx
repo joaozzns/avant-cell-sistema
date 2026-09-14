@@ -38,6 +38,9 @@ export default function OnboardingPage() {
             <Button type="submit" disabled={pending}>
               {pending ? "Criando…" : "Criar e começar"}
             </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              Foi convidado por uma loja? Não crie uma empresa: abra o link do convite que você recebeu.
+            </p>
           </form>
         </CardContent>
       </Card>
