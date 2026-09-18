@@ -18,7 +18,7 @@ export function SupplierForm() {
           <Input name="phone" placeholder="Telefone / WhatsApp" />
           <Input name="email" placeholder="E-mail" />
           <Input name="seller" placeholder="Vendedor / contato" />
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Input name="payment_terms" placeholder="Cond. pagamento (ex.: 30/60)" />
             <Input name="lead_time_days" placeholder="Prazo (dias)" className="w-28" type="number" />
           </div>

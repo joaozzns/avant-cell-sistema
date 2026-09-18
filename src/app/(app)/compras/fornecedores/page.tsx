@@ -15,7 +15,7 @@ export default async function SuppliersPage() {
     <div className="grid gap-6">
       <h1 className="text-2xl font-bold tracking-tight">Fornecedores</h1>
       <SupplierForm />
-      <div className="rounded-lg border bg-background">
+      <div className="min-w-0 rounded-lg border bg-background">
         <Table>
           <TableHeader>
             <TableRow>

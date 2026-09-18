@@ -53,7 +53,7 @@ export default async function UnitsPage() {
         <UnitForm products={deviceProducts ?? []} />
       )}
 
-      <div className="rounded-lg border bg-background">
+      <div className="min-w-0 rounded-lg border bg-background">
         <Table>
           <TableHeader>
             <TableRow>

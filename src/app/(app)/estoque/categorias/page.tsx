@@ -18,7 +18,7 @@ export default async function CategoriesPage() {
         <Card>
           <CardHeader><CardTitle>Categorias</CardTitle></CardHeader>
           <CardContent className="grid gap-4">
-            <form action={saveCategory} className="flex gap-2">
+            <form action={saveCategory} className="flex flex-wrap gap-2">
               <Input name="name" placeholder="Nova categoria…" required />
               <Button type="submit" variant="secondary">Adicionar</Button>
             </form>
@@ -35,7 +35,7 @@ export default async function CategoriesPage() {
         <Card>
           <CardHeader><CardTitle>Marcas</CardTitle></CardHeader>
           <CardContent className="grid gap-4">
-            <form action={saveBrand} className="flex gap-2">
+            <form action={saveBrand} className="flex flex-wrap gap-2">
               <Input name="name" placeholder="Nova marca…" required />
               <Button type="submit" variant="secondary">Adicionar</Button>
             </form>

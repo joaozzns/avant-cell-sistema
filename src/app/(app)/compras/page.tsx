@@ -43,7 +43,7 @@ export default async function PurchasesPage() {
           <h1 className="text-2xl font-bold tracking-tight">Compras</h1>
           <p className="text-sm text-muted-foreground">{(pos ?? []).length} pedidos</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link href="/compras/fornecedores" className={buttonVariants({ variant: "outline" })}>
             Fornecedores
           </Link>
@@ -79,7 +79,7 @@ export default async function PurchasesPage() {
         </Card>
       )}
 
-      <div className="rounded-lg border bg-background">
+      <div className="min-w-0 rounded-lg border bg-background">
         <Table>
           <TableHeader>
             <TableRow>

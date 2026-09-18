@@ -76,7 +76,7 @@ export default async function DrePage({
 
   return (
     <div className="grid max-w-2xl gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold tracking-tight">DRE gerencial</h1>
         <form>
           <input type="month" name="m" defaultValue={month}

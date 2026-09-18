@@ -32,7 +32,7 @@ export default async function ReceivablesPage() {
           {(rows ?? []).length} parcelas em aberto · {brl(total)}
         </p>
       </div>
-      <div className="rounded-lg border bg-background">
+      <div className="min-w-0 rounded-lg border bg-background">
         <Table>
           <TableHeader>
             <TableRow>

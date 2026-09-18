@@ -29,7 +29,7 @@ export default async function CustomersPage({
 
   return (
     <div className="grid gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Clientes</h1>
           <p className="text-sm text-muted-foreground">{customers?.length ?? 0} clientes</p>
@@ -37,12 +37,12 @@ export default async function CustomersPage({
         <Link href="/clientes/novo" className={buttonVariants({})}>Novo cliente</Link>
       </div>
 
-      <form className="flex max-w-md gap-2">
+      <form className="flex w-full max-w-md flex-wrap gap-2">
         <Input name="q" defaultValue={q} placeholder="Buscar por nome, CPF ou telefone…" />
         <Button type="submit" variant="secondary">Buscar</Button>
       </form>
 
-      <div className="rounded-lg border bg-background">
+      <div className="min-w-0 rounded-lg border bg-background">
         <Table>
           <TableHeader>
             <TableRow>

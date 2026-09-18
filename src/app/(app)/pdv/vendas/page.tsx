@@ -28,7 +28,7 @@ export default async function SalesPage() {
           Hoje: {brl(totalDay)} · últimas 100 vendas da loja
         </p>
       </div>
-      <div className="rounded-lg border bg-background">
+      <div className="min-w-0 rounded-lg border bg-background">
         <Table>
           <TableHeader>
             <TableRow>

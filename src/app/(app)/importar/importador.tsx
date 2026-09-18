@@ -503,7 +503,7 @@ export function Importador() {
                   <p className="text-xs text-muted-foreground">IMEIs já cadastrados são ignorados; aparelhos existentes não são alterados.</p>
                 )}
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button variant="outline" onClick={recomecar}>
                   <ArrowLeft className="h-4 w-4" /> Trocar arquivo
                 </Button>

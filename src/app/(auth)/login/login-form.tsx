@@ -5,6 +5,7 @@ import Link from "next/link";
 import { login } from "../actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CampoSenha } from "@/components/campo-senha";
 import { Label } from "@/components/ui/label";
 import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
@@ -27,7 +28,7 @@ export function LoginForm({ convite }: { convite?: string }) {
             <Input id="email" name="email" type="email" required autoComplete="email" />
           </div>
           <div className="grid gap-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <Label htmlFor="password">Senha</Label>
               <Link
                 href="/recuperar-senha"
@@ -36,7 +37,7 @@ export function LoginForm({ convite }: { convite?: string }) {
                 Esqueci a senha
               </Link>
             </div>
-            <Input id="password" name="password" type="password" required autoComplete="current-password" />
+            <CampoSenha id="password" name="password" required autoComplete="current-password" />
           </div>
           {state?.error && (
             <p className="text-sm text-destructive">{state.error}</p>

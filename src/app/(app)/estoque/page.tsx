@@ -42,7 +42,7 @@ export default async function ProductsPage({
             {products?.length ?? 0} produtos · saldo da loja ativa
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link href="/estoque/categorias" className={buttonVariants({ variant: "outline" })}>
             Categorias e marcas
           </Link>
@@ -58,12 +58,12 @@ export default async function ProductsPage({
         </div>
       </div>
 
-      <form className="flex max-w-md gap-2">
+      <form className="flex w-full max-w-md flex-wrap gap-2">
         <Input name="q" defaultValue={q} placeholder="Buscar por nome, código ou EAN…" />
         <Button type="submit" variant="secondary">Buscar</Button>
       </form>
 
-      <div className="rounded-lg border bg-background">
+      <div className="min-w-0 rounded-lg border bg-background">
         <Table>
           <TableHeader>
             <TableRow>

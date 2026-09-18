@@ -50,7 +50,7 @@ export default async function FinancePage() {
     <div className="grid gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold tracking-tight">Financeiro</h1>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link href="/financeiro/receber" className={buttonVariants({ variant: "outline" })}>A receber</Link>
           <Link href="/financeiro/pagar" className={buttonVariants({ variant: "outline" })}>A pagar</Link>
           <Link href="/financeiro/dre" className={buttonVariants({})}>DRE</Link>

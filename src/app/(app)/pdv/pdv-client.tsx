@@ -150,7 +150,7 @@ export function PdvClient() {
     <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
       {/* Coluna principal */}
       <div className="grid content-start gap-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-bold tracking-tight">PDV</h1>
           <div className="flex gap-2 text-xs text-muted-foreground">
             <Badge variant="outline">F2 produto</Badge>
@@ -197,7 +197,7 @@ export function PdvClient() {
           )}
         </div>
 
-        <div className="rounded-lg border bg-background">
+        <div className="min-w-0 rounded-lg border bg-background">
           {items.length === 0 ? (
             <p className="py-16 text-center text-muted-foreground">
               Carrinho vazio — bipe ou busque um produto para começar.
@@ -253,7 +253,7 @@ export function PdvClient() {
         <div>
           <p className="text-xs text-muted-foreground">Cliente (F4)</p>
           {customer ? (
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="font-medium">{customer.name}</span>
               <button onClick={() => setCustomer(null)} className="text-xs text-muted-foreground hover:text-destructive">
                 remover
@@ -271,7 +271,7 @@ export function PdvClient() {
             <span className="text-muted-foreground">Subtotal</span>
             <span>{brl(subtotal)}</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="text-muted-foreground">Desconto (R$)</span>
             <input
               inputMode="decimal"
@@ -341,7 +341,7 @@ export function PdvClient() {
               ))}
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Input
                 inputMode="decimal" value={payAmount}
                 onChange={(e) => setPayAmount(e.target.value)}

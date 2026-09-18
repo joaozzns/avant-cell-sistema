@@ -81,7 +81,7 @@ export default async function OsListPage({
                   return (
                     <Link key={o.id} href={`/os/${o.id}`}
                       className={`grid gap-1 rounded-lg border bg-background p-3 text-sm transition-colors hover:border-primary ${overdue ? "border-destructive" : ""}`}>
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
                         <span className="font-semibold">#{o.number}</span>
                         {o.priority === "urgent" && (
                           <Badge variant="destructive">urgente</Badge>

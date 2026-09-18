@@ -37,7 +37,7 @@ export default async function PayablesPage() {
 
       <PayableForm categories={categories ?? []} costCenters={costCenters ?? []} />
 
-      <div className="rounded-lg border bg-background">
+      <div className="min-w-0 rounded-lg border bg-background">
         <Table>
           <TableHeader>
             <TableRow>

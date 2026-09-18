@@ -28,7 +28,7 @@ export default async function AuditPage() {
           Somente leitura — nenhum perfil consegue apagar. Últimos 100 eventos.
         </p>
       </div>
-      <div className="rounded-lg border bg-background">
+      <div className="min-w-0 rounded-lg border bg-background">
         <Table>
           <TableHeader>
             <TableRow>

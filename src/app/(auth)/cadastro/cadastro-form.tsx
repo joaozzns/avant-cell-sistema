@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signup } from "../actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CampoSenha } from "@/components/campo-senha";
 import { Label } from "@/components/ui/label";
 import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
@@ -34,7 +35,7 @@ export function SignupForm({ convite }: { convite?: string }) {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Senha</Label>
-            <Input id="password" name="password" type="password" required minLength={8} autoComplete="new-password" />
+            <CampoSenha id="password" name="password" required minLength={8} autoComplete="new-password" />
             <p className="text-xs text-muted-foreground">
               Mínimo 8 caracteres, com letra e número
             </p>

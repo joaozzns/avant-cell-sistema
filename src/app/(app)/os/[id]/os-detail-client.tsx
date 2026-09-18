@@ -287,7 +287,7 @@ function DiagnosticSection({ os, diagnostics }: { os: any; diagnostics: any[] })
             <p><span className="text-muted-foreground">Constatado:</span> {d.found_issue}</p>
             {d.probable_cause && <p><span className="text-muted-foreground">Causa provável:</span> {d.probable_cause}</p>}
             {d.procedure && <p><span className="text-muted-foreground">Procedimento:</span> {d.procedure}</p>}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Badge variant={d.classification === "repairable" ? "default" : "destructive"}>
                 {d.classification === "repairable" ? "Com reparo"
                   : d.classification === "unrepairable" ? "Sem reparo" : "Reparo inviável"}
@@ -343,7 +343,7 @@ function QuoteSection({
       <CardContent className="grid gap-4">
         {quotes.filter((q: any) => q.status !== "draft").map((q: any) => (
           <div key={q.id} className="grid gap-1 rounded border px-3 py-2 text-sm">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="font-medium">Versão {q.version} · {brl(q.total)}</span>
               <Badge variant={
                 q.status === "approved" ? "default"
@@ -536,7 +536,7 @@ function PartsSection({ os, parts, act, pending }: any) {
 function CommentForm({ osId }: { osId: string }) {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(addComment, {});
   return (
-    <form action={formAction} className="flex gap-2">
+    <form action={formAction} className="flex flex-wrap gap-2">
       <input type="hidden" name="os_id" value={osId} />
       <Input name="message" placeholder="Comentário interno (não aparece no link público)…" />
       <Button type="submit" variant="secondary" disabled={pending}>Enviar</Button>
@@ -621,7 +621,7 @@ function DeliverDialog({ open, onClose, os, approvedQuote, router }: any) {
                     </button>
                   ))}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Input inputMode="decimal" value={payAmount}
                     onChange={(e) => setPayAmount(e.target.value)} placeholder="Valor"
                     onKeyDown={(e) => e.key === "Enter" && addPayment()} />
