@@ -116,6 +116,10 @@ export function OsDetailClient({
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          <a href={`/imprimir/os/${os.id}`} target="_blank" rel="noreferrer"
+            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+            🖨️ Imprimir OS
+          </a>
           {waLink && (
             <a href={waLink} target="_blank" rel="noreferrer"
               className="rounded-md border px-3 py-1.5 text-sm hover:bg-muted">

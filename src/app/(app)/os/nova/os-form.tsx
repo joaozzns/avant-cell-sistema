@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { CHECKLIST_ITENS } from "@/lib/impressao";
 import { useRouter } from "next/navigation";
 import { createOs } from "../actions";
 import { searchCustomers } from "@/app/(app)/pdv/actions";
@@ -11,20 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Customer = { id: string; name: string; cpf_cnpj: string | null; phone: string | null };
 
-const CHECKLIST_ITEMS = [
-  ["liga", "Liga"],
-  ["tela_ok", "Tela sem trinca"],
-  ["touch", "Touch funciona"],
-  ["cameras", "Câmeras OK"],
-  ["botoes", "Botões OK"],
-  ["alto_falante", "Alto-falante OK"],
-  ["microfone", "Microfone OK"],
-  ["biometria", "Biometria OK"],
-  ["carga", "Carrega"],
-  ["sinal", "Sinal / chip OK"],
-  ["sem_oxidacao", "Sem sinais de líquido/oxidação"],
-  ["sem_abertura", "Sem marca de abertura anterior"],
-] as const;
+const CHECKLIST_ITEMS = CHECKLIST_ITENS;
 
 const SYMPTOM_TAGS = [
   "Tela quebrada", "Não liga", "Bateria", "Não carrega", "Molhou",

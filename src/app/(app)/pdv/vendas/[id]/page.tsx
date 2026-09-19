@@ -7,7 +7,7 @@ import { IssueInvoiceButton } from "./issue-invoice";
 
 const KIND_LABEL: Record<string, string> = {
   cash: "Dinheiro", pix: "Pix", debit: "Débito",
-  credit: "Crédito à vista", credit_installments: "Crédito parcelado",
+  credit: "Crédito à vista", credit_installments: "Crédito parcelado", credit_plan: "Crediário",
 };
 
 export default async function SaleDetailPage({
@@ -36,11 +36,15 @@ export default async function SaleDetailPage({
 
   return (
     <div className="grid max-w-3xl gap-6">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-bold tracking-tight">Venda #{sale.number}</h1>
         <Badge variant={sale.status === "completed" ? "default" : "destructive"}>
           {sale.status === "completed" ? "concluída" : sale.status}
         </Badge>
+        <a href={`/imprimir/venda/${sale.id}`} target="_blank" rel="noreferrer"
+          className="ml-auto rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          🖨️ Imprimir recibo
+        </a>
       </div>
 
       <Card>

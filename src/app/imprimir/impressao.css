@@ -1,0 +1,62 @@
+/* Layout das páginas de impressão: tela mostra a folha centralizada com uma
+   barra de ações; na impressão só a folha sai, sem margens do navegador. */
+.impressao {
+  min-height: 100dvh;
+  background: #e9ecf3;
+  color: #111827;
+  padding: 72px 16px 32px;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.folha {
+  background: #fff;
+  margin: 0 auto 24px;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.12);
+}
+
+.folha-a4 { width: 210mm; min-height: 297mm; padding: 14mm 14mm 12mm; }
+.folha-80 { width: 80mm; padding: 4mm 3.5mm 6mm; font-size: 11px; line-height: 1.35; }
+
+.barra-impressao {
+  position: fixed; inset: 0 0 auto 0; z-index: 10;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 16px; background: #0f172a; color: #fff;
+}
+.barra-impressao a, .barra-impressao button {
+  border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.08); color: #fff;
+  border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none;
+}
+.barra-impressao .principal { background: #1d4ed8; border-color: #1d4ed8; }
+.barra-impressao .ativo { background: #fff; color: #0f172a; }
+
+/* tipografia da folha */
+.folha h1 { font-size: 18px; font-weight: 700; margin: 0; }
+.folha h2 { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #374151; margin: 0 0 6px; }
+.folha .linha-sep { border: 0; border-top: 1px solid #d1d5db; margin: 10px 0; }
+.folha .tracejado { border: 0; border-top: 1px dashed #6b7280; margin: 6px 0; }
+.folha .muted { color: #4b5563; }
+.folha .grade2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px; }
+.folha .bloco { border: 1px solid #d1d5db; border-radius: 6px; padding: 8px 10px; margin-top: 10px; }
+.folha .rotulo { font-size: 9.5px; text-transform: uppercase; letter-spacing: .05em; color: #6b7280; }
+.folha .valor { font-size: 12.5px; font-weight: 600; }
+.folha .check { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px 14px; font-size: 11.5px; }
+.folha .termo { font-size: 10px; line-height: 1.45; color: #1f2937; }
+.folha .termo li { margin-bottom: 2px; }
+.folha .assinaturas { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 30px; font-size: 11px; text-align: center; }
+.folha .assinaturas div { border-top: 1px solid #111827; padding-top: 4px; }
+.folha .via { font-size: 10px; font-weight: 700; letter-spacing: .12em; color: #1d4ed8; }
+.folha table { width: 100%; border-collapse: collapse; }
+.folha td, .folha th { padding: 2px 0; vertical-align: top; }
+.folha .dir { text-align: right; white-space: nowrap; }
+.folha .centro { text-align: center; }
+
+@media print {
+  @page { margin: 0; }
+  .impressao { background: #fff; padding: 0; min-height: 0; }
+  .barra-impressao { display: none !important; }
+  .folha { box-shadow: none; margin: 0; }
+  /* sem altura minima na impressao: a folha A4 cheia gerava uma pagina em branco */
+  .folha-a4 { min-height: 0; width: auto; }
+  .folha-a4 { page-break-after: always; break-after: page; }
+  .folha-a4:last-child { page-break-after: auto; break-after: auto; }
+}
