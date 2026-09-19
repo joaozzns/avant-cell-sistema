@@ -13,7 +13,7 @@ export function CampoSenha(props: React.ComponentProps<typeof Input>) {
 
   return (
     <div className="relative">
-      <Input {...props} type={visivel ? "text" : "password"} className="pr-10" />
+      <Input {...props} type={visivel ? "text" : "password"} className="pr-11" />
       <button
         type="button"
         onClick={() => setVisivel((v) => !v)}
@@ -21,9 +21,9 @@ export function CampoSenha(props: React.ComponentProps<typeof Input>) {
         aria-pressed={visivel}
         title={visivel ? "Ocultar senha" : "Mostrar senha"}
         tabIndex={-1}
-        className="absolute inset-y-0 right-0 grid w-10 place-items-center rounded-r-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+        className="absolute inset-y-0 right-0 grid w-11 place-items-center rounded-r-md text-foreground/75 transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
       >
-        {visivel ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        {visivel ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
       </button>
     </div>
   );

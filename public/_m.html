@@ -1,0 +1,12 @@
+<style>body{margin:0;background:#222}iframe{border:0;display:block}</style>
+<iframe id="f"></iframe>
+<script>
+const p=new URLSearchParams(location.search);
+const rota=p.get('r')||'/dashboard', L=+(p.get('w')||390);
+const f=document.getElementById('f'); f.style.width=L+'px'; f.style.height='1000px'; f.src=rota;
+f.onload=()=>setTimeout(()=>{try{const d=f.contentDocument;
+ const larg=d.documentElement.scrollWidth;
+ const maus=[...d.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&(r.right>L+6||r.left<-6)})
+   .slice(0,4).map(e=>e.tagName+'.'+String(e.className).slice(0,44)+'|'+Math.round(e.getBoundingClientRect().left)+'→'+Math.round(e.getBoundingClientRect().right));
+ document.title='R:'+JSON.stringify({larg,maus});}catch(e){document.title='ERRO:'+e.message}},2600);
+</script>
