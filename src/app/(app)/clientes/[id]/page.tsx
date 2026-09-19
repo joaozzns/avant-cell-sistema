@@ -19,11 +19,11 @@ export default async function EditCustomerPage({
     .from("customers").select("*").eq("id", id).maybeSingle();
   if (!customer) notFound();
 
-  const [{ data: sales }, { data: orders }, { data: devices }, { data: receivables }] =
+  const [{ data: sales }, { data: orders }, { data: devices }, { data: receivables }, { data: creditos }] =
     await Promise.all([
       supabase.from("sales")
         .select("id, number, total, status, created_at")
-        .eq("customer_id", id).eq("status", "completed")
+        .eq("customer_id", id).in("status", ["completed", "partially_returned"])
         .order("created_at", { ascending: false }).limit(10),
       supabase.from("service_orders")
         .select("id, number, status, reported_issue, warranty_until, created_at")
@@ -36,11 +36,17 @@ export default async function EditCustomerPage({
         .select("id, description, due_date, amount, paid_amount, status")
         .eq("customer_id", id).in("status", ["open", "partial"])
         .order("due_date"),
+      supabase.from("store_credits")
+        .select("balance, expires_at")
+        .eq("customer_id", id).gt("balance", 0),
     ]);
 
   const totalSpent = (sales ?? []).reduce((s, v) => s + Number(v.total), 0);
   const openDebt = (receivables ?? []).reduce((s, r) => s + Number(r.amount) - Number(r.paid_amount), 0);
   const today = new Date().toISOString().slice(0, 10);
+  const saldoCredito = (creditos ?? [])
+    .filter((c) => !c.expires_at || c.expires_at >= today)
+    .reduce((s, c) => s + Number(c.balance), 0);
   const activeWarranty = (orders ?? []).find(
     (o) => o.warranty_until && o.warranty_until >= today && o.status === "delivered");
 
@@ -51,6 +57,7 @@ export default async function EditCustomerPage({
         <p className="text-sm text-muted-foreground">
           Total gasto: {brl(totalSpent)} · {(sales ?? []).length} compras · {(orders ?? []).length} OS
           {openDebt > 0 && <span className="ml-2 font-medium text-destructive">· deve {brl(openDebt)}</span>}
+          {saldoCredito > 0 && <span className="ml-2 font-medium text-green-600">· crédito na loja {brl(saldoCredito)}</span>}
         </p>
         {activeWarranty && (
           <p className="mt-1 text-sm text-green-600">

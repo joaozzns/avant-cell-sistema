@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import {
-  searchProducts, searchCustomers, completeSale,
+  searchProducts, searchCustomers, completeSale, customerCredit,
   type CartItem, type PaymentEntry,
 } from "./actions";
 import { brl } from "@/lib/format";
@@ -26,6 +26,11 @@ const PAYMENT_KINDS = [
   { kind: "credit_plan", label: "Crediário" },
 ];
 
+const ROTULO_PAGAMENTO: Record<string, string> = {
+  ...Object.fromEntries(PAYMENT_KINDS.map((k) => [k.kind, k.label])),
+  store_credit: "Crédito na loja",
+};
+
 export function PdvClient() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [term, setTerm] = useState("");
@@ -42,6 +47,15 @@ export function PdvClient() {
   const [discount, setDiscount] = useState(0);
   const [error, setError] = useState("");
   const [done, setDone] = useState<{ number: number } | null>(null);
+  const [credito, setCredito] = useState(0);
+
+  /* saldo de crédito na loja do cliente escolhido */
+  useEffect(() => {
+    if (!customer) { setCredito(0); return; }
+    let vivo = true;
+    customerCredit(customer.id).then((v) => { if (vivo) setCredito(v); });
+    return () => { vivo = false; };
+  }, [customer]);
   const [pending, startTransition] = useTransition();
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -122,6 +136,18 @@ export function PdvClient() {
     if (payKind === "credit_plan" && !customer) {
       setError("Crediário exige cliente vinculado à venda (F4).");
       return;
+    }
+    if (payKind === "store_credit") {
+      const usado = payments.filter((p) => p.kind === "store_credit").reduce((s, p) => s + p.amount, 0);
+      const disponivel = credito - usado;
+      if (!customer || disponivel <= 0) {
+        setError("Este cliente não tem crédito na loja disponível.");
+        return;
+      }
+      if (amount > disponivel + 0.001) {
+        setError(`Crédito disponível: ${brl(disponivel)}.`);
+        return;
+      }
     }
     const change = payKind === "cash" && amount > remaining ? amount - remaining : 0;
     setPayments((prev) => [...prev, {
@@ -339,6 +365,12 @@ export function PdvClient() {
                   {k.label}
                 </button>
               ))}
+              {credito > 0 && (
+                <button onClick={() => setPayKind("store_credit")}
+                  className={`rounded-md border px-3 py-1.5 text-sm ${payKind === "store_credit" ? "border-primary bg-primary text-primary-foreground" : "border-green-600/40 text-green-700 hover:bg-green-50 dark:text-green-400"}`}>
+                  Crédito na loja · {brl(credito)}
+                </button>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -364,7 +396,7 @@ export function PdvClient() {
                 {payments.map((p, idx) => (
                   <div key={idx} className="flex justify-between rounded border px-3 py-1.5">
                     <span>
-                      {PAYMENT_KINDS.find((k) => k.kind === p.kind)?.label}
+                      {ROTULO_PAGAMENTO[p.kind] ?? p.kind}
                       {(p.installments ?? 1) > 1 && ` ${p.installments}x`}
                       {(p.changeGiven ?? 0) > 0 && (
                         <span className="ml-2 text-muted-foreground">

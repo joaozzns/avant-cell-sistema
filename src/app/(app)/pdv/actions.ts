@@ -71,6 +71,20 @@ export async function searchCustomers(term: string) {
   return data ?? [];
 }
 
+/** Saldo de crédito na loja do cliente (devoluções que viraram crédito). */
+export async function customerCredit(customerId: string) {
+  const { supabase } = await getSessionContext();
+  const hoje = new Date().toISOString().slice(0, 10);
+  const { data } = await supabase
+    .from("store_credits")
+    .select("balance, expires_at")
+    .eq("customer_id", customerId)
+    .gt("balance", 0);
+  return (data ?? [])
+    .filter((c) => !c.expires_at || c.expires_at >= hoje)
+    .reduce((s, c) => s + Number(c.balance), 0);
+}
+
 // ---------- Venda ----------
 export type CartItem = {
   productId: string;

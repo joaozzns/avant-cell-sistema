@@ -34,6 +34,7 @@ const NOMES: Record<string, string> = {
   auditoria: "Auditoria",
   portal: "Portal do cliente",
   importar: "Importar dados",
+  devolver: "Devolução / troca",
 };
 
 /* Rotas que existem como pagina — as demais viram texto sem link, para a trilha

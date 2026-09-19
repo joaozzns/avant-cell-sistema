@@ -57,8 +57,8 @@ export default async function SalesPage() {
                 <TableCell className="text-center">{(s.sale_items as unknown[]).length}</TableCell>
                 <TableCell className="text-right font-medium">{brl(s.total)}</TableCell>
                 <TableCell>
-                  <Badge variant={s.status === "completed" ? "default" : "destructive"}>
-                    {s.status === "completed" ? "concluída" : s.status}
+                  <Badge variant={s.status === "completed" ? "default" : s.status === "partially_returned" ? "secondary" : "destructive"}>
+                    {({ completed: "concluída", canceled: "cancelada", returned: "devolvida", partially_returned: "devolvida em parte" } as Record<string, string>)[s.status] ?? s.status}
                   </Badge>
                 </TableCell>
               </TableRow>
