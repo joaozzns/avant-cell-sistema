@@ -8,7 +8,7 @@ export default async function OsDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { supabase, userId } = await getSessionContext();
+  const { supabase, userId, companyId } = await getSessionContext();
 
   const { data: os } = await supabase
     .from("service_orders")
@@ -60,6 +60,7 @@ export default async function OsDetailPage({
       laborLogs={JSON.parse(JSON.stringify(laborLogs ?? []))}
       technicians={JSON.parse(JSON.stringify(technicians ?? []))}
       currentUserId={userId}
+      companyId={companyId}
     />
   );
 }

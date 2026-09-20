@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FotosOs } from "./fotos";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const NEXT_ACTIONS: Record<string, { to: string; label: string; variant?: "default" | "secondary" | "destructive" }[]> = {
@@ -51,10 +52,10 @@ const CHECKLIST_LABELS: Record<string, string> = {
 };
 
 export function OsDetailClient({
-  os, diagnostics, quotes, parts, comments, history, laborLogs, technicians, currentUserId,
+  os, diagnostics, quotes, parts, comments, history, laborLogs, technicians, currentUserId, companyId,
 }: {
   os: any; diagnostics: any[]; quotes: any[]; parts: any[]; comments: any[];
-  history: any[]; laborLogs: any[]; technicians: any[]; currentUserId: string;
+  history: any[]; laborLogs: any[]; technicians: any[]; currentUserId: string; companyId: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -205,6 +206,8 @@ export function OsDetailClient({
               )}
             </CardContent>
           </Card>
+
+          <FotosOs osId={os.id} companyId={companyId} />
 
           <DiagnosticSection os={os} diagnostics={diagnostics} />
 
