@@ -11,6 +11,8 @@ export default async function DevolverPage({ params }: { params: Promise<{ id: s
     .select(`
       id, number, status, total, customer_id,
       customers(name),
+      sale_payments(kind, amount, change_given),
+      sale_returns(total, refund_kind),
       sale_items(id, qty, returned_qty, unit_price, total, products(name), serialized_units(imei1))
     `)
     .eq("id", id)
@@ -33,8 +35,19 @@ export default async function DevolverPage({ params }: { params: Promise<{ id: s
     };
   });
 
+  /* o que foi pago com crédito na loja não pode voltar como dinheiro */
+  const pagamentos = (venda.sale_payments ?? []) as unknown as { kind: string; amount: number; change_given: number | null }[];
+  const devolucoes = (venda.sale_returns ?? []) as unknown as { total: number; refund_kind: string }[];
+  const emDinheiro = pagamentos
+    .filter((p) => !["store_credit", "voucher"].includes(p.kind))
+    .reduce((s, p) => s + Number(p.amount) - Number(p.change_given ?? 0), 0);
+  const jaDevolvido = devolucoes
+    .filter((d) => !["store_credit", "voucher"].includes(d.refund_kind))
+    .reduce((s, d) => s + Number(d.total), 0);
+
   return (
     <FormDevolucao
+      limiteDinheiro={Math.max(emDinheiro - jaDevolvido, 0)}
       vendaId={venda.id}
       numero={venda.number}
       cliente={(venda.customers as { name?: string } | null)?.name ?? null}

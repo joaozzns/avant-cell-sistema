@@ -38,12 +38,13 @@ const REEMBOLSOS = [
 ];
 
 export function FormDevolucao({
-  vendaId, numero, cliente, itens,
+  vendaId, numero, cliente, itens, limiteDinheiro,
 }: {
   vendaId: string;
   numero: number;
   cliente: string | null;
   itens: ItemVendido[];
+  limiteDinheiro: number;
 }) {
   const router = useRouter();
   const [pendente, iniciar] = useTransition();
@@ -80,6 +81,10 @@ export function FormDevolucao({
     if (!itensEscolhidos.length) { setErro("Marque o item que o cliente está devolvendo."); return; }
     if (reembolso === "store_credit" && !cliente) {
       setErro("Crédito na loja precisa de cliente identificado na venda. Escolha outra forma de reembolso.");
+      return;
+    }
+    if (reembolso !== "store_credit" && total > limiteDinheiro + 0.005) {
+      setErro(`Esta venda foi paga com crédito na loja. Em dinheiro ou estorno só dá para devolver ${brl(limiteDinheiro)}; o restante volta como crédito.`);
       return;
     }
     iniciar(async () => {
@@ -160,7 +165,8 @@ export function FormDevolucao({
 
           <div className="grid gap-2">
             {REEMBOLSOS.map((r) => {
-              const bloqueado = r.valor === "store_credit" && !cliente;
+              const semDinheiro = r.valor !== "store_credit" && limiteDinheiro <= 0;
+              const bloqueado = (r.valor === "store_credit" && !cliente) || semDinheiro;
               return (
                 <label key={r.valor}
                   className={`flex items-start gap-3 rounded-lg border p-3 ${reembolso === r.valor ? "border-primary bg-primary/5" : ""} ${bloqueado ? "opacity-50" : "cursor-pointer"}`}>
@@ -169,7 +175,11 @@ export function FormDevolucao({
                   <span>
                     <span className="font-medium">{r.rotulo}</span>
                     <span className="block text-xs text-muted-foreground">
-                      {bloqueado ? "Precisa de cliente identificado na venda." : r.ajuda}
+                      {r.valor === "store_credit" && !cliente
+                        ? "Precisa de cliente identificado na venda."
+                        : semDinheiro
+                          ? "Esta venda foi paga com crédito na loja: a devolução volta como crédito."
+                          : r.ajuda}
                     </span>
                   </span>
                 </label>
