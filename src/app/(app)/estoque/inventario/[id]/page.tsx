@@ -15,19 +15,19 @@ export default async function InventarioDetalhePage({ params }: { params: Promis
 
   const { data: itens } = await supabase
     .from("inventory_items")
-    .select("id, system_qty, counted_qty, second_count, final_qty, diff_value, products(name, sku)")
+    .select("id, system_qty, counted_qty, second_count, final_qty, diff_value, products(name, internal_code, ean)")
     .eq("inventory_id", id)
     .limit(500);
 
   const lista: ItemContagem[] = (itens ?? []).map((i) => {
     const it = i as unknown as {
       id: string; system_qty: number; counted_qty: number | null; second_count: number | null;
-      final_qty: number | null; diff_value: number | null; products: { name?: string; sku?: string } | null;
+      final_qty: number | null; diff_value: number | null; products: { name?: string; internal_code?: string; ean?: string } | null;
     };
     return {
       id: it.id,
       nome: it.products?.name ?? "Produto",
-      codigo: it.products?.sku ?? null,
+      codigo: it.products?.internal_code ?? it.products?.ean ?? null,
       sistema: Number(it.system_qty),
       contado: it.counted_qty === null ? null : Number(it.counted_qty),
       segunda: it.second_count === null ? null : Number(it.second_count),
