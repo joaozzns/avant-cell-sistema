@@ -17,6 +17,7 @@ const NOMES: Record<string, string> = {
   usado: "Usado na troca",
   comissoes: "Comissão e metas",
   transferencias: "Transferências",
+  inventario: "Inventário",
   nova: "Nova",
   categorias: "Categorias e marcas",
   movimentacoes: "Movimentações",

@@ -38,6 +38,7 @@ const MODULOS: Modulo[] = [
       { href: "/estoque/usado", label: "Usado na troca" },
       { href: "/estoque/categorias", label: "Categorias" },
       { href: "/estoque/transferencias", label: "Transferências" },
+      { href: "/estoque/inventario", label: "Inventário" },
       { href: "/estoque/movimentacoes", label: "Movimentações" },
       { href: "/compras", label: "Pedidos de compra" },
       { href: "/compras/fornecedores", label: "Fornecedores" },
