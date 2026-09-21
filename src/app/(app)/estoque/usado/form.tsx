@@ -2,16 +2,17 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, Check, Search, X } from "lucide-react";
+import { Camera, Check, Search, ShieldAlert, ShieldCheck, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { caminhoArquivo, comprimirImagem, extensaoDe } from "@/lib/fotos";
 import { imeiValido } from "@/lib/imei";
+import { SITUACOES, URL_CONSULTA_OFICIAL, type ResultadoImei } from "@/lib/imei-consulta";
 import { brl } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { buscarClientes, buscarModelos, registrarUsado } from "./actions";
+import { buscarClientes, buscarModelos, consultarBloqueio, registrarUsado } from "./actions";
 
 const CHECKLIST = [
   ["tela", "Tela sem trinca"],
@@ -53,6 +54,8 @@ export function FormUsado({ companyId }: { companyId: string }) {
   const [cor, setCor] = useState("");
   const [capacidade, setCapacidade] = useState("");
   const [condicao, setCondicao] = useState("seminew");
+  const [consulta, setConsulta] = useState<ResultadoImei | null>(null);
+  const [consultando, setConsultando] = useState(false);
   const [checklist, setChecklist] = useState<Record<string, boolean>>(
     Object.fromEntries(CHECKLIST.map(([k]) => [k, true])),
   );
@@ -104,6 +107,8 @@ export function FormUsado({ companyId }: { companyId: string }) {
     if (!imeiValido(imei)) return setErro("IMEI inválido. Confira os 15 dígitos.");
     if (!vendedorNome.trim() || !vendedorCpf.trim()) return setErro("Informe nome e CPF de quem está vendendo.");
     if (!docFoto) return setErro("Falta a foto do documento do vendedor.");
+    if (!consulta) return setErro("Confira o IMEI na base de bloqueio antes de comprar.");
+    if (consulta.situacao === "bloqueado") return setErro("IMEI bloqueado: a compra não pode ser registrada.");
     if (valorPago <= 0) return setErro("Informe o valor pago.");
     if (pagamento === "store_credit" && !cliente) return setErro("Crédito na loja exige um cliente cadastrado.");
 
@@ -112,7 +117,7 @@ export function FormUsado({ companyId }: { companyId: string }) {
         produtoId: modelo.id, marca: modelo.marca ?? "", modelo: modelo.nome,
         imei, cor, capacidade, condicao, checklist, acessorios,
         vendedorNome, vendedorCpf, vendedorRg, docFoto, fotos,
-        clienteId: cliente?.id ?? null,
+        clienteId: cliente?.id ?? null, consultaImei: consulta,
         valorPago, precoSugerido: precoSugerido || null, formaPagamento: pagamento,
       });
       if (r.error) { setErro(r.error); return; }
@@ -195,7 +200,7 @@ export function FormUsado({ companyId }: { companyId: string }) {
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="grid gap-1.5">
               <Label>IMEI</Label>
-              <Input value={imei} onChange={(e) => setImei(e.target.value.replace(/\D/g, "").slice(0, 15))}
+              <Input value={imei} onChange={(e) => { setImei(e.target.value.replace(/\D/g, "").slice(0, 15)); setConsulta(null); }}
                 inputMode="numeric" placeholder="15 dígitos"
                 className={!imeiOk ? "border-destructive" : ""} />
               {!imeiOk && <span className="text-xs text-destructive">IMEI não confere</span>}
@@ -208,6 +213,57 @@ export function FormUsado({ companyId }: { companyId: string }) {
               <Label>Capacidade</Label>
               <Input value={capacidade} onChange={(e) => setCapacidade(e.target.value)} placeholder="128GB" />
             </div>
+          </div>
+
+          {/* consulta de bloqueio */}
+          <div className={`rounded-lg border p-3 ${consulta?.situacao === "bloqueado" ? "border-destructive bg-destructive/5" : consulta?.situacao === "livre" ? "border-green-600/40 bg-green-50 dark:bg-green-950/20" : "border-dashed"}`}>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-sm font-medium">
+                {consulta?.situacao === "bloqueado" ? (
+                  <span className="flex items-center gap-2 text-destructive"><ShieldAlert className="h-4 w-4" /> IMEI bloqueado — não compre</span>
+                ) : consulta?.situacao === "livre" ? (
+                  <span className="flex items-center gap-2 text-green-700 dark:text-green-400"><ShieldCheck className="h-4 w-4" /> IMEI livre</span>
+                ) : consulta?.situacao === "nao_encontrado" ? (
+                  <span className="flex items-center gap-2">IMEI não encontrado na base</span>
+                ) : (
+                  <span>Consulta de roubo/furto — obrigatória</span>
+                )}
+              </span>
+              <Button type="button" variant="outline" size="sm" disabled={!imeiValido(imei) || consultando}
+                onClick={async () => {
+                  setErro(""); setConsultando(true);
+                  const r = await consultarBloqueio(imei);
+                  setConsultando(false);
+                  if (r) { setConsulta(r); return; }
+                  window.open(`${URL_CONSULTA_OFICIAL}`, "_blank", "noopener");
+                  setConsulta(null);
+                  setErro("Sem serviço de consulta contratado: confira na página que abriu e registre abaixo o que apareceu.");
+                }}>
+                {consultando ? "Consultando…" : "Consultar IMEI"}
+              </Button>
+            </div>
+
+            {consulta?.fonte === "consulta_automatica" && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Consulta automática{consulta.detalhe ? ` · ${consulta.detalhe}` : ""}
+              </p>
+            )}
+
+            <div className="mt-2 flex flex-wrap gap-2">
+              {SITUACOES.map((s) => (
+                <button key={s.valor} type="button" title={s.ajuda}
+                  onClick={() => setConsulta({
+                    situacao: s.valor, fonte: "conferencia_manual", consultado_em: new Date().toISOString(),
+                  })}
+                  className={`rounded-md border px-3 py-1.5 text-xs ${consulta?.situacao === s.valor ? "border-primary bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+                  {s.rotulo}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Sem serviço contratado, confira na página oficial da Anatel e marque aqui o que apareceu.
+              Fica registrado quem conferiu e quando.
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-2">

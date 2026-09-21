@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
+import { consultarImei, type ResultadoImei } from "@/lib/imei-consulta";
 
 export async function buscarModelos(termo: string) {
   const { supabase } = await getSessionContext();
@@ -35,6 +36,18 @@ export async function buscarClientes(termo: string) {
   return data ?? [];
 }
 
+/** Consulta o IMEI no serviço contratado. Sem serviço, devolve null e a tela
+ *  pede a conferência manual na página oficial. */
+export async function consultarBloqueio(imei: string): Promise<ResultadoImei | null> {
+  const { supabase, companyId } = await getSessionContext();
+  const { data } = await supabase
+    .from("integrations")
+    .select("config, status")
+    .eq("company_id", companyId).eq("kind", "imei_check").eq("status", "connected")
+    .maybeSingle();
+  return consultarImei(imei, (data?.config ?? null) as { url?: string; token?: string } | null);
+}
+
 export type EntradaUsado = {
   produtoId: string;
   marca: string;
@@ -51,6 +64,7 @@ export type EntradaUsado = {
   docFoto: string;
   fotos: string[];
   clienteId: string | null;
+  consultaImei: ResultadoImei;
   valorPago: number;
   precoSugerido: number | null;
   formaPagamento: string;
@@ -88,6 +102,7 @@ export async function registrarUsado(e: EntradaUsado) {
       seller_rg: e.vendedorRg,
       doc_photo_url: e.docFoto,
       customer_id: e.clienteId,
+      imei_check: e.consultaImei,
       paid_amount: e.valorPago,
       suggested_price: e.precoSugerido,
       payment_kind: e.formaPagamento,
