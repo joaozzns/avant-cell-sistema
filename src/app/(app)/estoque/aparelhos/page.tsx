@@ -36,12 +36,18 @@ export default async function UnitsPage() {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Aparelhos com IMEI</h1>
-        <p className="text-sm text-muted-foreground">
-          Cada aparelho é uma unidade única e rastreável. O IMEI é validado
-          (dígito verificador) e não pode se repetir na empresa.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Aparelhos com IMEI</h1>
+          <p className="text-sm text-muted-foreground">
+            Cada aparelho é uma unidade única e rastreável. O IMEI é validado
+            (dígito verificador) e não pode se repetir na empresa.
+          </p>
+        </div>
+        <a href="/estoque/usado"
+          className="shrink-0 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          + Comprar usado
+        </a>
       </div>
 
       {(deviceProducts ?? []).length === 0 ? (

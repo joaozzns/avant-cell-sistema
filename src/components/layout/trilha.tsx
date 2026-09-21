@@ -14,6 +14,7 @@ const NOMES: Record<string, string> = {
   caixa: "Caixa",
   estoque: "Catálogo e estoque",
   aparelhos: "Aparelhos (IMEI)",
+  usado: "Usado na troca",
   categorias: "Categorias e marcas",
   movimentacoes: "Movimentações",
   novo: "Novo",
