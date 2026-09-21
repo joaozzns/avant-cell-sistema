@@ -59,6 +59,7 @@ const MODULOS: Modulo[] = [
       { href: "/financeiro/receber", label: "Contas a receber" },
       { href: "/financeiro/pagar", label: "Contas a pagar" },
       { href: "/financeiro/comissoes", label: "Comissão e metas" },
+      { href: "/financeiro/conciliacao", label: "Conciliação de cartão" },
       { href: "/financeiro/dre", label: "DRE" },
     ],
   },
