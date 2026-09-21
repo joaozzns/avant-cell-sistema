@@ -51,7 +51,14 @@ const MODULOS: Modulo[] = [
       { href: "/os/nova", label: "Nova OS" },
     ],
   },
-  { href: "/clientes", label: "Clientes", icon: Users },
+  {
+    href: "/clientes", label: "Clientes", icon: Users,
+    itens: [
+      { href: "/clientes", label: "Base de clientes" },
+      { href: "/clientes/avisos", label: "Avisos ao cliente" },
+      { href: "/clientes/modelos", label: "Modelos de mensagem" },
+    ],
+  },
   {
     href: "/financeiro", label: "Financeiro", icon: Wallet,
     itens: [

@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FotosOs } from "./fotos";
+import { AvisosOs, type AvisoOs } from "./avisos";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const NEXT_ACTIONS: Record<string, { to: string; label: string; variant?: "default" | "secondary" | "destructive" }[]> = {
@@ -53,9 +54,11 @@ const CHECKLIST_LABELS: Record<string, string> = {
 
 export function OsDetailClient({
   os, diagnostics, quotes, parts, comments, history, laborLogs, technicians, currentUserId, companyId,
+  avisos, modelosAviso,
 }: {
   os: any; diagnostics: any[]; quotes: any[]; parts: any[]; comments: any[];
   history: any[]; laborLogs: any[]; technicians: any[]; currentUserId: string; companyId: string;
+  avisos: AvisoOs[]; modelosAviso: { key: string; name: string }[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -237,6 +240,13 @@ export function OsDetailClient({
             quotes={quotes} act={act} pending={pending}
           />
           <PartsSection os={os} parts={parts} act={act} pending={pending} />
+
+          <AvisosOs
+            osId={os.id}
+            avisos={avisos}
+            modelos={modelosAviso}
+            telefone={customer.whatsapp ?? customer.phone ?? null}
+          />
 
           <Card>
             <CardHeader><CardTitle className="text-base">Histórico</CardTitle></CardHeader>

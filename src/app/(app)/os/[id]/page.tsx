@@ -29,6 +29,8 @@ export default async function OsDetailPage({
     { data: history },
     { data: laborLogs },
     { data: technicians },
+    { data: mensagens },
+    { data: modelos },
   ] = await Promise.all([
     supabase.from("os_diagnostics")
       .select("*, profiles:technician_id(full_name)")
@@ -47,7 +49,23 @@ export default async function OsDetailPage({
     supabase.from("os_labor_logs")
       .select("*").eq("os_id", id).order("started_at", { ascending: false }),
     supabase.from("profiles").select("id, full_name").eq("active", true).order("full_name"),
+    supabase.from("messages")
+      .select("id, body, status, error, template_key, created_at")
+      .eq("ref_table", "service_orders").eq("ref_id", id)
+      .order("created_at", { ascending: false }).limit(20),
+    supabase.from("message_templates")
+      .select("key, name").eq("company_id", companyId).eq("active", true).order("name"),
   ]);
+
+  const nomeModelo = new Map((modelos ?? []).map((m) => [m.key as string, m.name as string]));
+  const avisos = (mensagens ?? []).map((m) => ({
+    id: m.id as string,
+    corpo: m.body as string,
+    situacao: m.status as string,
+    erro: (m.error as string | null) ?? null,
+    modelo: nomeModelo.get(m.template_key as string) ?? "Mensagem",
+    criado: m.created_at as string,
+  }));
 
   return (
     <OsDetailClient
@@ -61,6 +79,8 @@ export default async function OsDetailPage({
       technicians={JSON.parse(JSON.stringify(technicians ?? []))}
       currentUserId={userId}
       companyId={companyId}
+      avisos={avisos}
+      modelosAviso={(modelos ?? []).map((m) => ({ key: m.key as string, name: m.name as string }))}
     />
   );
 }

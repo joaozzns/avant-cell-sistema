@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
 import { parseDecimal } from "@/lib/format";
 import { imeiValido } from "@/lib/imei";
+import { enfileirarAvisoOs } from "@/lib/avisos";
 
 export type ActionState = { error?: string; ok?: boolean };
 
@@ -119,20 +120,24 @@ export async function createOs(input: {
     .single();
   if (error) return { error: error.message };
 
+  await enfileirarAvisoOs(supabase, { osId: os.id, gatilho: "open", companyId, userId });
   revalidatePath("/os");
+  revalidatePath("/clientes/avisos");
   return { osId: os.id, number: os.number };
 }
 
 // ---------- Status ----------
 export async function setOsStatus(osId: string, status: string): Promise<ActionState> {
-  const { supabase } = await getSessionContext();
+  const { supabase, companyId, userId } = await getSessionContext();
   const { error } = await supabase
     .from("service_orders")
     .update({ status })
     .eq("id", osId);
   if (error) return { error: error.message.replace(/^.*?: /, "") };
+  await enfileirarAvisoOs(supabase, { osId, gatilho: status, companyId, userId });
   revalidatePath(`/os/${osId}`);
   revalidatePath("/os");
+  revalidatePath("/clientes/avisos");
   return { ok: true };
 }
 
@@ -242,7 +247,7 @@ export async function removeQuoteItem(itemId: string, quoteId: string, osId: str
 }
 
 export async function sendQuote(quoteId: string, osId: string): Promise<ActionState> {
-  const { supabase } = await getSessionContext();
+  const { supabase, companyId, userId } = await getSessionContext();
 
   // Laudo é obrigatório antes de enviar orçamento ao cliente
   const { count } = await supabase
@@ -271,7 +276,9 @@ export async function sendQuote(quoteId: string, osId: string): Promise<ActionSt
     .eq("status", "diagnosing");
   if (stErr) return { error: stErr.message.replace(/^.*?: /, "") };
 
+  await enfileirarAvisoOs(supabase, { osId, gatilho: "awaiting_approval", companyId, userId });
   revalidatePath(`/os/${osId}`);
+  revalidatePath("/clientes/avisos");
   return { ok: true };
 }
 
@@ -281,7 +288,7 @@ export async function decideQuoteInPerson(
   approve: boolean,
   reason?: string
 ): Promise<ActionState> {
-  const { supabase } = await getSessionContext();
+  const { supabase, companyId, userId } = await getSessionContext();
   const { error } = await supabase
     .from("os_quotes")
     .update({
@@ -300,7 +307,11 @@ export async function decideQuoteInPerson(
     .eq("id", osId);
   if (stErr) return { error: stErr.message.replace(/^.*?: /, "") };
 
+  await enfileirarAvisoOs(supabase, {
+    osId, gatilho: approve ? "approved" : "unrepaired", companyId, userId,
+  });
   revalidatePath(`/os/${osId}`);
+  revalidatePath("/clientes/avisos");
   return { ok: true };
 }
 
@@ -402,7 +413,7 @@ export async function deliverOs(input: {
   deliveredTo?: string;
   payments: { kind: string; amount: number; installments?: number; changeGiven?: number }[];
 }): Promise<{ error?: string; saleNumber?: number }> {
-  const { supabase } = await getSessionContext();
+  const { supabase, companyId, userId } = await getSessionContext();
   const { data, error } = await supabase.rpc("deliver_os", {
     p: {
       os_id: input.osId,
@@ -416,8 +427,12 @@ export async function deliverOs(input: {
     },
   });
   if (error) return { error: error.message.replace(/^.*?: /, "") };
+  await enfileirarAvisoOs(supabase, {
+    osId: input.osId, gatilho: "delivered", companyId, userId,
+  });
   revalidatePath(`/os/${input.osId}`);
   revalidatePath("/os");
+  revalidatePath("/clientes/avisos");
   const r = data as { number: number | null };
   return { saleNumber: r.number ?? undefined };
 }
