@@ -1,4 +1,5 @@
 import { getSessionContext } from "@/lib/context";
+import { isoLocal } from "@/lib/format";
 import { PainelComissoes, type LinhaVendedor, type Regra } from "./painel";
 
 export default async function ComissoesPage({
@@ -8,11 +9,12 @@ export default async function ComissoesPage({
 }) {
   const { periodo } = await searchParams;
   const { supabase, companyId } = await getSessionContext();
-  const mes = /^\d{4}-\d{2}$/.test(periodo ?? "") ? periodo! : new Date().toISOString().slice(0, 7);
+  const mes = /^\d{4}-\d{2}$/.test(periodo ?? "") ? periodo! : isoLocal().slice(0, 7);
 
   const inicio = `${mes}-01`;
-  const fim = new Date(new Date(`${inicio}T00:00:00`).setMonth(new Date(`${inicio}T00:00:00`).getMonth() + 1))
-    .toISOString().slice(0, 10);
+  const fim = isoLocal(
+    new Date(new Date(`${inicio}T00:00:00`).setMonth(new Date(`${inicio}T00:00:00`).getMonth() + 1)),
+  );
 
   const [{ data: lancamentos }, { data: regras }, { data: metas }, { data: vendas }, { data: equipe }] =
     await Promise.all([

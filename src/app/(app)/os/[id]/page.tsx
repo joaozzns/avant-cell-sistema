@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getSessionContext } from "@/lib/context";
 import { OsDetailClient } from "./os-detail-client";
@@ -9,6 +10,12 @@ export default async function OsDetailPage({
 }) {
   const { id } = await params;
   const { supabase, userId, companyId } = await getSessionContext();
+
+  /* o endereço vem do servidor: montar com window.location na renderização
+     fazia o HTML do servidor sair com o link vazio e o React reclamar */
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  const origem = `${h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https")}://${host}`;
 
   const { data: os } = await supabase
     .from("service_orders")
@@ -31,6 +38,7 @@ export default async function OsDetailPage({
     { data: technicians },
     { data: mensagens },
     { data: modelos },
+    { count: fotos },
   ] = await Promise.all([
     supabase.from("os_diagnostics")
       .select("*, profiles:technician_id(full_name)")
@@ -55,6 +63,8 @@ export default async function OsDetailPage({
       .order("created_at", { ascending: false }).limit(20),
     supabase.from("message_templates")
       .select("key, name").eq("company_id", companyId).eq("active", true).order("name"),
+    supabase.from("os_attachments")
+      .select("id", { count: "exact", head: true }).eq("os_id", id).eq("kind", "photo"),
   ]);
 
   const nomeModelo = new Map((modelos ?? []).map((m) => [m.key as string, m.name as string]));
@@ -81,6 +91,8 @@ export default async function OsDetailPage({
       companyId={companyId}
       avisos={avisos}
       modelosAviso={(modelos ?? []).map((m) => ({ key: m.key as string, name: m.name as string }))}
+      temFoto={(fotos ?? 0) > 0}
+      origem={origem}
     />
   );
 }

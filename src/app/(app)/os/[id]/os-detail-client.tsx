@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FotosOs } from "./fotos";
 import { AvisosOs, type AvisoOs } from "./avisos";
+import { ServicoExterno } from "./externo";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const NEXT_ACTIONS: Record<string, { to: string; label: string; variant?: "default" | "secondary" | "destructive" }[]> = {
@@ -54,11 +55,12 @@ const CHECKLIST_LABELS: Record<string, string> = {
 
 export function OsDetailClient({
   os, diagnostics, quotes, parts, comments, history, laborLogs, technicians, currentUserId, companyId,
-  avisos, modelosAviso,
+  avisos, modelosAviso, temFoto, origem,
 }: {
   os: any; diagnostics: any[]; quotes: any[]; parts: any[]; comments: any[];
   history: any[]; laborLogs: any[]; technicians: any[]; currentUserId: string; companyId: string;
-  avisos: AvisoOs[]; modelosAviso: { key: string; name: string }[];
+  avisos: AvisoOs[]; modelosAviso: { key: string; name: string }[]; temFoto: boolean;
+  origem: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -70,8 +72,7 @@ export function OsDetailClient({
   const meta = OS_STATUS[os.status] ?? { label: os.status, color: "bg-gray-400" };
   const customer = os.customers ?? {};
   const device = os.customer_devices ?? {};
-  const publicUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/acompanhar/${os.public_token}` : "";
+  const publicUrl = `${origem}/acompanhar/${os.public_token}`;
 
   const draftQuote = quotes.find((q: any) => q.status === "draft");
   const sentQuote = quotes.find((q: any) => q.status === "sent");
@@ -211,6 +212,8 @@ export function OsDetailClient({
           </Card>
 
           <FotosOs osId={os.id} companyId={companyId} />
+
+          <ServicoExterno osId={os.id} temFoto={temFoto} />
 
           <DiagnosticSection os={os} diagnostics={diagnostics} />
 

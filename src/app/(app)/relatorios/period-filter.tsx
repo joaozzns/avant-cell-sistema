@@ -1,3 +1,5 @@
+import { isoLocal } from "@/lib/format";
+
 export function PeriodFilter({ de, ate }: { de: string; ate: string }) {
   return (
     <form className="flex flex-wrap items-end gap-2">
@@ -19,11 +21,11 @@ export function PeriodFilter({ de, ate }: { de: string; ate: string }) {
 }
 
 export function getPeriod(sp: { de?: string; ate?: string }) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = isoLocal();
   const monthStart = today.slice(0, 8) + "01";
   const de = sp.de && /^\d{4}-\d{2}-\d{2}$/.test(sp.de) ? sp.de : monthStart;
   const ate = sp.ate && /^\d{4}-\d{2}-\d{2}$/.test(sp.ate) ? sp.ate : today;
-  const ateEnd = new Date(ate + "T00:00:00Z");
-  ateEnd.setUTCDate(ateEnd.getUTCDate() + 1);
-  return { de, ate, deIso: de, ateIso: ateEnd.toISOString().slice(0, 10) };
+  const ateEnd = new Date(ate + "T00:00:00");
+  ateEnd.setDate(ateEnd.getDate() + 1);
+  return { de, ate, deIso: de, ateIso: isoLocal(ateEnd) };
 }

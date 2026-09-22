@@ -1,5 +1,5 @@
 import { getSessionContext } from "@/lib/context";
-import { brl, fmtDate } from "@/lib/format";
+import { brl, fmtDate, isoLocal } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -8,7 +8,7 @@ import { SettleReceivableButton } from "../settle-widgets";
 
 export default async function ReceivablesPage() {
   const { supabase, storeId } = await getSessionContext();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = isoLocal(new Date());
 
   const [{ data: rows }, { data: accounts }] = await Promise.all([
     supabase

@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { brl } from "@/lib/format";
+import { brl, fmtDate } from "@/lib/format";
 import { preencher, telefoneWhatsApp, MODELOS_PADRAO } from "@/lib/mensagens";
 
 /**
@@ -136,8 +136,8 @@ async function montar(
     numero_os: String(os.number),
     aparelho: (os.customer_devices as unknown as { model_text?: string } | null)?.model_text ?? "aparelho",
     valor: valor > 0 ? brl(valor) : "",
-    prazo: os.deadline ? new Date(os.deadline as string).toLocaleDateString("pt-BR") : "",
-    garantia: os.warranty_until ? new Date(os.warranty_until as string).toLocaleDateString("pt-BR") : "",
+    prazo: os.deadline ? fmtDate(os.deadline as string) : "",
+    garantia: os.warranty_until ? fmtDate(os.warranty_until as string) : "",
     link: origem ? `${origem}/acompanhar/${os.public_token}` : "",
   });
 

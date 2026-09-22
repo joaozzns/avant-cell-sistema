@@ -49,6 +49,7 @@ const MODULOS: Modulo[] = [
     itens: [
       { href: "/os", label: "Painel de OS" },
       { href: "/os/nova", label: "Nova OS" },
+      { href: "/os/laboratorio", label: "Laboratório externo" },
     ],
   },
   {

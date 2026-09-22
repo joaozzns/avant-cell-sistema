@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSessionContext } from "@/lib/context";
-import { brl, fmtDate, fmtDateTime } from "@/lib/format";
+import { brl, fmtDate, fmtDateTime, isoLocal } from "@/lib/format";
 import { CustomerForm } from "../customer-form";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,7 +43,7 @@ export default async function EditCustomerPage({
 
   const totalSpent = (sales ?? []).reduce((s, v) => s + Number(v.total), 0);
   const openDebt = (receivables ?? []).reduce((s, r) => s + Number(r.amount) - Number(r.paid_amount), 0);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = isoLocal();
   const saldoCredito = (creditos ?? [])
     .filter((c) => !c.expires_at || c.expires_at >= today)
     .reduce((s, c) => s + Number(c.balance), 0);

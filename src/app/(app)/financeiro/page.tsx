@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { getSessionContext } from "@/lib/context";
-import { brl } from "@/lib/format";
+import { brl, isoLocal } from "@/lib/format";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AccountForm } from "./account-form";
 
 export default async function FinancePage() {
   const { supabase, storeId } = await getSessionContext();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = isoLocal(new Date());
 
   const [{ data: accounts }, { data: txs }, { data: recv }, { data: pay }] =
     await Promise.all([
@@ -37,8 +37,8 @@ export default async function FinancePage() {
   const weeks = [0, 1, 2, 3].map((w) => {
     const start = new Date(); start.setDate(start.getDate() + w * 7);
     const end = new Date(); end.setDate(end.getDate() + (w + 1) * 7);
-    const si = start.toISOString().slice(0, 10);
-    const ei = end.toISOString().slice(0, 10);
+    const si = isoLocal(start);
+    const ei = isoLocal(end);
     const rin = (recv ?? []).filter((r) => r.due_date >= si && r.due_date < ei)
       .reduce((s, r) => s + Number(r.amount) - Number(r.paid_amount), 0);
     const rout = (pay ?? []).filter((p) => p.due_date >= si && p.due_date < ei)

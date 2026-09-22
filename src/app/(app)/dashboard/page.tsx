@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getSessionContext } from "@/lib/context";
-import { brl } from "@/lib/format";
+import { brl, isoLocal } from "@/lib/format";
 import { Atalho, Indicador } from "@/components/painel";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
-  const hojeISO = hoje.toISOString().slice(0, 10);
+  const hojeISO = isoLocal(hoje);
   const em7dias = new Date();
   em7dias.setDate(em7dias.getDate() + 7);
 
@@ -37,7 +37,7 @@ export default async function DashboardPage() {
     supabase
       .from("receivables").select("amount, paid_amount")
       .eq("store_id", storeId).in("status", ["open", "partial"])
-      .lte("due_date", em7dias.toISOString().slice(0, 10)),
+      .lte("due_date", isoLocal(em7dias)),
     supabase
       .from("stock_items").select("qty, min_qty, products(name)")
       .eq("store_id", storeId).gt("min_qty", 0),

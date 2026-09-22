@@ -8,7 +8,7 @@ import { fmtDateTime } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fotosDaOs, registrarFoto, removerFoto, type FotoOs } from "./fotos-actions";
 
-const MOMENTOS = ["Entrada", "Diagnóstico", "Reparo", "Saída"];
+const MOMENTOS = ["Entrada", "Diagnóstico", "Reparo", "Envio ao laboratório", "Retorno do laboratório", "Saída"];
 
 export function FotosOs({ osId, companyId }: { osId: string; companyId: string }) {
   const [fotos, setFotos] = useState<FotoOs[]>([]);

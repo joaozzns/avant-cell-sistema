@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
-import { parseDecimal } from "@/lib/format";
+import { parseDecimal, isoLocal } from "@/lib/format";
 import { imeiValido } from "@/lib/imei";
 import { enfileirarAvisoOs } from "@/lib/avisos";
 
@@ -206,7 +206,7 @@ export async function addQuoteItem(
       .insert({
         os_id: osId,
         version: (last?.version ?? 0) + 1,
-        valid_until: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
+        valid_until: isoLocal(new Date(Date.now() + 7 * 86400000)),
       })
       .select("id")
       .single();

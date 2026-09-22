@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
-import { parseDecimal } from "@/lib/format";
+import { parseDecimal, isoLocal } from "@/lib/format";
 
 export type ActionState = { error?: string; ok?: boolean };
 
@@ -74,7 +74,7 @@ export async function searchCustomers(term: string) {
 /** Saldo de crédito na loja do cliente (devoluções que viraram crédito). */
 export async function customerCredit(customerId: string) {
   const { supabase } = await getSessionContext();
-  const hoje = new Date().toISOString().slice(0, 10);
+  const hoje = isoLocal();
   const { data } = await supabase
     .from("store_credits")
     .select("balance, expires_at")

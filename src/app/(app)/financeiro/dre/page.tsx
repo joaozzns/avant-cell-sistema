@@ -1,5 +1,5 @@
 import { getSessionContext } from "@/lib/context";
-import { brl } from "@/lib/format";
+import { brl, isoLocal } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function DrePage({
@@ -10,11 +10,11 @@ export default async function DrePage({
   const { m } = await searchParams;
   const { supabase, storeId } = await getSessionContext();
 
-  const month = m && /^\d{4}-\d{2}$/.test(m) ? m : new Date().toISOString().slice(0, 7);
+  const month = m && /^\d{4}-\d{2}$/.test(m) ? m : isoLocal().slice(0, 7);
   const start = `${month}-01`;
   const endDate = new Date(`${month}-01T00:00:00Z`);
   endDate.setUTCMonth(endDate.getUTCMonth() + 1);
-  const end = endDate.toISOString().slice(0, 10);
+  const end = isoLocal(endDate);
 
   const [{ data: sales }, { data: deliveredOs }] = await Promise.all([
     supabase
