@@ -27,6 +27,7 @@ const MODULOS: Modulo[] = [
     itens: [
       { href: "/pdv", label: "PDV" },
       { href: "/pdv/vendas", label: "Vendas realizadas" },
+      { href: "/pdv/reservas", label: "Reservas e encomendas" },
       { href: "/pdv/caixa", label: "Caixa" },
     ],
   },
