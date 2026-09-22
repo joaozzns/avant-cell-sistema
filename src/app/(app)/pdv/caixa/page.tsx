@@ -3,6 +3,7 @@ import { brl, fmtDateTime } from "@/lib/format";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OpenCashForm, CloseCashForm, CashMoveForm } from "./cash-forms";
+import { rotuloPagamento } from "@/lib/pagamentos";
 
 const MOVE_LABEL: Record<string, string> = {
   sale: "Venda",
@@ -12,6 +13,9 @@ const MOVE_LABEL: Record<string, string> = {
   refund: "Estorno",
   opening: "Abertura",
 };
+
+/* estorno e sangria tiram dinheiro da gaveta; o resto põe */
+const SAI_DO_CAIXA = new Set(["withdrawal", "refund"]);
 
 export default async function CashPage() {
   const { supabase, storeId, userId } = await getSessionContext();
@@ -84,11 +88,6 @@ export default async function CashPage() {
       byKind[p.kind] = (byKind[p.kind] ?? 0) + Number(p.amount) - Number(p.change_given ?? 0);
     }
   }
-  const KIND_LABEL: Record<string, string> = {
-    cash: "Dinheiro", pix: "Pix", debit: "Débito",
-    credit: "Crédito", credit_installments: "Crédito parcelado",
-  };
-
   return (
     <div className="grid gap-6">
       <div className="flex items-center gap-3">
@@ -112,7 +111,7 @@ export default async function CashPage() {
         {Object.entries(byKind).map(([kind, value]) => (
           <Card key={kind}>
             <CardHeader className="pb-2">
-              <CardDescription>{KIND_LABEL[kind] ?? kind}</CardDescription>
+              <CardDescription>{rotuloPagamento(kind)}</CardDescription>
               <CardTitle className="text-xl">{brl(value)}</CardTitle>
             </CardHeader>
           </Card>
@@ -136,8 +135,8 @@ export default async function CashPage() {
                   {MOVE_LABEL[m.type] ?? m.type}
                   {m.reason && <span className="ml-2 text-muted-foreground">{m.reason}</span>}
                 </span>
-                <span className={m.type === "withdrawal" ? "text-destructive" : ""}>
-                  {m.type === "withdrawal" ? "−" : "+"}{brl(m.amount)}
+                <span className={SAI_DO_CAIXA.has(m.type) ? "text-destructive" : ""}>
+                  {SAI_DO_CAIXA.has(m.type) ? "−" : "+"}{brl(m.amount)}
                 </span>
               </div>
             ))}

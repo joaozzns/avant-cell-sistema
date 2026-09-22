@@ -5,6 +5,7 @@ import { brl, fmtDateTime } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IssueInvoiceButton } from "./issue-invoice";
+import { rotuloPagamento } from "@/lib/pagamentos";
 
 const SITUACAO: Record<string, string> = {
   completed: "concluída", canceled: "cancelada", returned: "devolvida",
@@ -18,11 +19,6 @@ const REEMBOLSO: Record<string, string> = {
 };
 const DESTINO: Record<string, string> = {
   stock: "voltou ao estoque", damage: "avariado", supplier_warranty: "garantia do fornecedor", os: "assistência",
-};
-
-const KIND_LABEL: Record<string, string> = {
-  cash: "Dinheiro", pix: "Pix", debit: "Débito",
-  credit: "Crédito à vista", credit_installments: "Crédito parcelado", credit_plan: "Crediário", store_credit: "Crédito na loja",
 };
 
 export default async function SaleDetailPage({
@@ -217,7 +213,7 @@ export default async function SaleDetailPage({
           {(sale.sale_payments as Array<Record<string, unknown>>).map((p) => (
             <div key={String(p.id)} className="flex justify-between rounded border px-3 py-1.5">
               <span>
-                {KIND_LABEL[String(p.kind)] ?? String(p.kind)}
+                {rotuloPagamento(String(p.kind))}
                 {Number(p.installments) > 1 && ` ${p.installments}x`}
                 {Number(p.change_given) > 0 && (
                   <span className="ml-2 text-muted-foreground">troco {brl(Number(p.change_given))}</span>

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { conciliar, contestar, importarExtrato, type LinhaExtrato } from "./actions";
+import { rotuloPagamento } from "@/lib/pagamentos";
 
 export type Lancamento = {
   id: string; adquirente: string; bruto: number; taxa: number; liquido: number;
@@ -21,10 +22,6 @@ const SITUACAO: Record<string, { rotulo: string; cor: "default" | "secondary" | 
   matched: { rotulo: "conferido", cor: "default" },
   divergent: { rotulo: "taxa diferente", cor: "destructive" },
   contested: { rotulo: "em contestação", cor: "secondary" },
-};
-
-const FORMA: Record<string, string> = {
-  debit: "Débito", credit: "Crédito à vista", credit_installments: "Crédito parcelado",
 };
 
 /* Cabeçalhos aceitos no extrato. Cada maquininha nomeia do seu jeito. */
@@ -171,7 +168,7 @@ export function PainelConciliacao({
                 <span>
                   Venda #{v.venda}
                   <span className="block text-xs text-muted-foreground">
-                    {FORMA[v.forma] ?? v.forma}{v.parcelas > 1 && ` em ${v.parcelas}x`} · {fmtDate(v.data)}
+                    {rotuloPagamento(v.forma)}{v.parcelas > 1 && ` em ${v.parcelas}x`} · {fmtDate(v.data)}
                   </span>
                 </span>
                 <strong>{brl(v.valor)}</strong>

@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import { rotuloPagamento } from "@/lib/pagamentos";
 
 type SearchResult = Awaited<ReturnType<typeof searchProducts>>;
 type Customer = { id: string; name: string; cpf_cnpj: string | null; phone: string | null };
@@ -25,11 +26,6 @@ const PAYMENT_KINDS = [
   { kind: "credit_installments", label: "Crédito parcelado" },
   { kind: "credit_plan", label: "Crediário" },
 ];
-
-const ROTULO_PAGAMENTO: Record<string, string> = {
-  ...Object.fromEntries(PAYMENT_KINDS.map((k) => [k.kind, k.label])),
-  store_credit: "Crédito na loja",
-};
 
 export function PdvClient() {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -396,7 +392,7 @@ export function PdvClient() {
                 {payments.map((p, idx) => (
                   <div key={idx} className="flex justify-between rounded border px-3 py-1.5">
                     <span>
-                      {ROTULO_PAGAMENTO[p.kind] ?? p.kind}
+                      {rotuloPagamento(p.kind)}
                       {(p.installments ?? 1) > 1 && ` ${p.installments}x`}
                       {(p.changeGiven ?? 0) > 0 && (
                         <span className="ml-2 text-muted-foreground">

@@ -5,13 +5,9 @@ import {
   TERMO_GARANTIA_PADRAO, formatarDocumento, formatarEndereco, termoOuPadrao,
 } from "@/lib/impressao";
 import { BarraImpressao } from "../../barra";
+import { rotuloPagamento } from "@/lib/pagamentos";
 
 export const metadata = { title: "Imprimir recibo" };
-
-const FORMA: Record<string, string> = {
-  cash: "Dinheiro", pix: "Pix", debit: "Débito", credit: "Crédito à vista",
-  credit_installments: "Crédito parcelado", credit_plan: "Crediário",
-};
 
 type Item = {
   id: string; qty: number; unit_price: number; discount: number; total: number;
@@ -149,7 +145,7 @@ export default async function ImprimirVendaPage({
             {pagamentos.map((p) => (
               <tr key={p.id}>
                 <td>
-                  {FORMA[p.kind] ?? p.kind}
+                  {rotuloPagamento(p.kind)}
                   {Number(p.installments) > 1 && <> em {p.installments}x</>}
                 </td>
                 <td className="dir">{brl(p.amount)}</td>

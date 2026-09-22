@@ -3,6 +3,7 @@ import { brl } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PeriodFilter, getPeriod } from "../period-filter";
 import { CsvButton } from "../csv-button";
+import { rotuloPagamento } from "@/lib/pagamentos";
 
 export default async function SalesReportPage({
   searchParams,
@@ -33,11 +34,6 @@ export default async function SalesReportPage({
   const bySeller = new Map<string, { total: number; count: number }>();
   // ranking produtos
   const byProduct = new Map<string, { qty: number; total: number; cost: number }>();
-
-  const KIND_LABEL: Record<string, string> = {
-    cash: "Dinheiro", pix: "Pix", debit: "Débito", credit: "Crédito",
-    credit_installments: "Crédito parcelado", credit_plan: "Crediário",
-  };
 
   for (const s of rows) {
     const day = String(s.completed_at).slice(0, 10);
@@ -103,7 +99,7 @@ export default async function SalesReportPage({
           <CardContent className="grid gap-1 text-sm">
             {[...byKind.entries()].sort((a, b) => b[1] - a[1]).map(([kind, v]) => (
               <div key={kind} className="flex justify-between rounded border px-3 py-1.5">
-                <span>{KIND_LABEL[kind] ?? kind}</span>
+                <span>{rotuloPagamento(kind)}</span>
                 <span className="font-medium">{brl(v)}</span>
               </div>
             ))}
