@@ -9,6 +9,7 @@ const PUBLIC_ROUTES = [
   "/cadastro",
   "/recuperar-senha",
   "/acompanhar",
+  "/vendedor",   /* painel pessoal do vendedor: o link é a credencial */
   "/auth/sessao",
   "/convite",
 ];

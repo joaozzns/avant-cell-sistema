@@ -104,7 +104,14 @@ export async function chamar(nome: string, payload: unknown): Promise<{ dados?: 
 }
 
 export async function contexto() {
-  const perfil = await um<{ company_id: string; id: string }>("profiles?select=id,company_id&limit=1");
+  /* o usuário é o dono do token, não "o primeiro perfil da tabela": as vendas
+     nascem com seller_id = auth.uid(), então confundir os dois faz o teste
+     medir a pessoa errada */
+  const jwt = await entrar();
+  const corpo = JSON.parse(
+    Buffer.from(jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"), "base64").toString());
+  const perfil = await um<{ company_id: string; id: string }>(
+    `profiles?id=eq.${corpo.sub}&select=id,company_id`);
   const loja = await um<{ id: string; name: string }>("stores?select=id,name&order=name&limit=1");
   return { empresa: perfil.company_id, usuario: perfil.id, loja: loja.id };
 }
