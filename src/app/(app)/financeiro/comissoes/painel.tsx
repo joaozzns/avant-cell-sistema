@@ -11,7 +11,7 @@ import { alternarRegra, apurarComissao, mudarSituacao, salvarMeta, salvarRegra }
 
 export type LinhaVendedor = {
   id: string; nome: string; vendido: number; comissao: number;
-  emAberto: number; aprovado: number; pago: number; meta: number; bonus: number;
+  emAberto: number; aprovado: number; pago: number; estornos: number; meta: number; bonus: number;
 };
 export type Regra = {
   id: string; name: string; base: string; rate: number | null;
@@ -51,8 +51,9 @@ export function PainelComissoes({
     (s, l) => ({
       vendido: s.vendido + l.vendido, comissao: s.comissao + l.comissao,
       emAberto: s.emAberto + l.emAberto, aprovado: s.aprovado + l.aprovado, pago: s.pago + l.pago,
+      estornos: s.estornos + l.estornos,
     }),
-    { vendido: 0, comissao: 0, emAberto: 0, aprovado: 0, pago: 0 },
+    { vendido: 0, comissao: 0, emAberto: 0, aprovado: 0, pago: 0, estornos: 0 },
   );
 
   function numero(v: string) {
@@ -137,6 +138,11 @@ export function PainelComissoes({
           <div key={String(rotulo)} className="rounded-xl border bg-background p-4">
             <p className="text-xs text-muted-foreground">{rotulo}</p>
             <p className="mt-1 text-xl font-bold">{brl(Number(valor))}</p>
+            {rotulo === "Comissão apurada" && totais.estornos < 0 && (
+              <p className="mt-1 text-xs text-destructive">
+                já com {brl(totais.estornos)} de estorno por devolução
+              </p>
+            )}
           </div>
         ))}
       </div>
@@ -179,6 +185,9 @@ export function PainelComissoes({
                       <span>em aberto {brl(l.emAberto)}</span>
                       <span>aprovada {brl(l.aprovado)}</span>
                       <span>paga {brl(l.pago)}</span>
+                      {l.estornos < 0 && (
+                        <span className="text-destructive">estorno por devolução {brl(l.estornos)}</span>
+                      )}
                       <span className="ml-auto flex gap-2">
                         {l.emAberto > 0 && (
                           <Button size="sm" variant="outline" disabled={pendente}

@@ -19,7 +19,7 @@ export default async function ComissoesPage({
   const [{ data: lancamentos }, { data: regras }, { data: metas }, { data: vendas }, { data: equipe }] =
     await Promise.all([
       supabase.from("commission_entries")
-        .select("user_id, amount, base_amount, status, profiles:user_id(full_name)")
+        .select("user_id, amount, base_amount, status, reversal_of, notes, profiles:user_id(full_name)")
         .eq("period", mes),
       supabase.from("commission_rules")
         .select("id, name, base, rate, fixed_amount, only_when_paid, active")
@@ -45,6 +45,9 @@ export default async function ComissoesPage({
     const l = porVendedor.get(c.user_id) ?? vazio(c.user_id, nome(c.user_id));
     const valor = Number(c.amount);
     l.comissao += valor;
+    /* estorno de devolução entra negativo: mostrar à parte evita o vendedor
+       achar que a conta do mês veio errada */
+    if (c.reversal_of) l.estornos += valor;
     if (c.status === "accrued") l.emAberto += valor;
     if (c.status === "approved") l.aprovado += valor;
     if (c.status === "paid") l.pago += valor;
@@ -71,5 +74,5 @@ export default async function ComissoesPage({
 }
 
 function vazio(id: string, nome: string): LinhaVendedor {
-  return { id, nome, vendido: 0, comissao: 0, emAberto: 0, aprovado: 0, pago: 0, meta: 0, bonus: 0 };
+  return { id, nome, vendido: 0, comissao: 0, emAberto: 0, aprovado: 0, pago: 0, estornos: 0, meta: 0, bonus: 0 };
 }
