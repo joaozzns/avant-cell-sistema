@@ -21,7 +21,7 @@ export default async function ImprimirOsPage({ params }: { params: Promise<{ id:
     .from("service_orders")
     .select(`
       id, number, status, reported_issue, symptom_tags, entry_checklist, accessories,
-      password_not_given, estimated_price, diagnosis_fee, deadline, warranty_days,
+      password_not_given, estimated_price, diagnosis_fee, deadline, warranty_days, terms_version,
       public_token, created_at, store_id,
       customers(name, cpf_cnpj, phone, whatsapp),
       customer_devices(model_text, imei, serial_number, color, capacity),
@@ -35,12 +35,19 @@ export default async function ImprimirOsPage({ params }: { params: Promise<{ id:
   const [{ data: empresa }, { data: loja }, { data: termos }] = await Promise.all([
     supabase.from("companies").select("name, trade_name, cnpj, phone, email, address").eq("id", companyId).maybeSingle(),
     supabase.from("stores").select("name, cnpj, phone, address").eq("id", os.store_id ?? storeId).maybeSingle(),
-    supabase.from("terms").select("kind, version, body").eq("active", true).in("kind", ["service_term", "warranty_term"])
+    supabase.from("terms").select("kind, version, body, active")
+      .in("kind", ["service_term", "warranty_term"])
       .order("version", { ascending: false }),
   ]);
 
-  const termoServico = termos?.find((t) => t.kind === "service_term")?.body;
-  const termoGarantia = termos?.find((t) => t.kind === "warranty_term")?.body;
+  /* imprime a versão que o cliente assinou nesta OS; sem versão registrada
+     (OS antiga), cai na vigente */
+  const versaoAssinada = os.terms_version as number | null;
+  const servico = (termos ?? []).filter((t) => t.kind === "service_term");
+  const termoServico =
+    (versaoAssinada ? servico.find((t) => t.version === versaoAssinada) : null)?.body
+    ?? servico.find((t) => t.active)?.body;
+  const termoGarantia = (termos ?? []).find((t) => t.kind === "warranty_term" && t.active)?.body;
   const clausulas: string[] = termoServico && !/edite em configura/i.test(termoServico)
     ? String(termoServico).split(/\n+/).filter(Boolean)
     : TERMO_SERVICO_PADRAO;

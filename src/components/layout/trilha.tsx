@@ -42,6 +42,7 @@ const NOMES: Record<string, string> = {
   assistencia: "Assistência",
   admin: "Administração",
   auditoria: "Auditoria",
+  termos: "Termos da loja",
   portal: "Portal do cliente",
   importar: "Importar dados",
   devolver: "Devolução / troca",
@@ -60,7 +61,7 @@ const NAVEGAVEIS = new Set([
   "/financeiro", "/financeiro/receber", "/financeiro/pagar", "/financeiro/dre",
   "/fiscal", "/fiscal/configuracoes",
   "/relatorios", "/relatorios/vendas", "/relatorios/assistencia", "/relatorios/estoque",
-  "/admin", "/admin/auditoria", "/portal", "/importar",
+  "/admin", "/admin/auditoria", "/admin/termos", "/portal", "/importar",
 ]);
 
 export function Trilha() {

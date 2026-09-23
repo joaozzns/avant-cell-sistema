@@ -93,6 +93,7 @@ const MODULOS: Modulo[] = [
     href: "/admin", label: "Administração", icon: Settings,
     itens: [
       { href: "/admin", label: "Usuários e lojas" },
+      { href: "/admin/termos", label: "Termos da loja" },
       { href: "/admin/auditoria", label: "Auditoria" },
     ],
   },

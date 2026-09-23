@@ -95,6 +95,16 @@ export async function createOs(input: {
 
   const notLighting = input.checklist["liga"] === false;
 
+  /* fica registrado qual versão do termo o cliente assinou: se a loja mudar o
+     texto depois, esta OS continua apontando para o que foi impresso hoje */
+  const { data: termoVigente } = await supabase
+    .from("terms")
+    .select("version")
+    .eq("company_id", companyId)
+    .eq("kind", "service_term")
+    .eq("active", true)
+    .maybeSingle();
+
   const { data: os, error } = await supabase
     .from("service_orders")
     .insert({
@@ -114,6 +124,7 @@ export async function createOs(input: {
       deadline: input.deadline || null,
       estimated_price: input.estimatedPrice ?? null,
       diagnosis_fee: input.diagnosisFee ?? 0,
+      terms_version: termoVigente?.version ?? null,
       created_by: userId,
     })
     .select("id, number")
