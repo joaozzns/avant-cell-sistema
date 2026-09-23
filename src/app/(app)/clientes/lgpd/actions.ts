@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
 import { isoLocal } from "@/lib/format";
+import { mensagemDoBanco } from "@/lib/erro-banco";
 
 const CAMINHO = "/clientes/lgpd";
 
@@ -44,7 +45,7 @@ export async function anonimizar(clienteId: string, pedidoId?: string) {
   const { data, error } = await supabase.rpc("lgpd_anonymize", {
     p: { customer_id: clienteId, request_id: pedidoId ?? null },
   });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
   revalidatePath(CAMINHO);
   revalidatePath(`/clientes/${clienteId}`);
   revalidatePath("/clientes");

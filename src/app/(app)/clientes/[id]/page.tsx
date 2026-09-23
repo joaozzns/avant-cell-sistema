@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PrivacidadeCliente } from "./lgpd";
+import { Crediario } from "./crediario";
 import { getSessionContext } from "@/lib/context";
 import { brl, fmtDate, fmtDateTime, isoLocal } from "@/lib/format";
 import { CustomerForm } from "../customer-form";
@@ -104,6 +105,8 @@ export default async function EditCustomerPage({
               {(devices ?? []).length === 0 && <p className="text-muted-foreground">Nenhum aparelho.</p>}
             </CardContent>
           </Card>
+
+          <Crediario clienteId={customer.id as string} nome={customer.name as string} />
 
           <PrivacidadeCliente
             clienteId={customer.id as string}

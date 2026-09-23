@@ -99,7 +99,7 @@ export async function chamar(nome: string, payload: unknown): Promise<{ dados?: 
     body: JSON.stringify(payload),
   });
   const corpo = await r.json().catch(() => null);
-  if (!r.ok) return { erro: String(corpo?.message ?? r.status).replace(/^.*?: /, "") };
+  if (!r.ok) return { erro: String(corpo?.message ?? r.status) };
   return { dados: corpo };
 }
 

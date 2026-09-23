@@ -83,3 +83,20 @@ test("IMEI passa pela validação do dígito verificador", () => {
   assert.equal(imeiValido("352099001761482"), false, "um dígito trocado tem que reprovar");
   assert.equal(imeiValido("12345"), false);
 });
+
+test("erro do banco chega inteiro na tela", async () => {
+  const { mensagemDoBanco } = await import("../src/lib/erro-banco.ts");
+  assert.equal(
+    mensagemDoBanco("Cliente bloqueado para novas compras a prazo: cheque devolvido"),
+    "Cliente bloqueado para novas compras a prazo: cheque devolvido",
+    "a frase não pode ser cortada nos dois-pontos",
+  );
+  assert.equal(mensagemDoBanco("P0001: Caixa fechado"), "Caixa fechado", "código SQL sai");
+  assert.match(
+    mensagemDoBanco('new row violates row-level security policy for table "sales"'),
+    /permissão/i, "erro de RLS vira frase que o lojista entende");
+  assert.match(
+    mensagemDoBanco("duplicate key value violates unique constraint \"uq_x\""),
+    /já existe/i);
+  assert.equal(mensagemDoBanco(""), "Não deu para completar a operação.");
+});

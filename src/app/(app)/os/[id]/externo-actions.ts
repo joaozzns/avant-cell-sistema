@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
+import { mensagemDoBanco } from "@/lib/erro-banco";
 
 export type EnvioExterno = {
   id: string;
@@ -75,7 +76,7 @@ export async function enviarParaLaboratorio(entrada: {
       notes: entrada.observacao,
     },
   });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
   revalidatePath(`/os/${entrada.osId}`);
   revalidatePath("/os/laboratorio");
   return { ok: true };
@@ -103,7 +104,7 @@ export async function atualizarEnvio(entrada: {
       due_date: entrada.vencimento ?? null,
     },
   });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
   revalidatePath(`/os/${entrada.osId}`);
   revalidatePath("/os/laboratorio");
   revalidatePath("/financeiro/pagar");

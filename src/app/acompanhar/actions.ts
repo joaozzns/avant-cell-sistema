@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { mensagemDoBanco } from "@/lib/erro-banco";
 
 export async function publicDecide(
   token: string,
@@ -21,7 +22,7 @@ export async function publicDecide(
     p_reason: reason ?? null,
     p_ip: ip,
   });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
   revalidatePath(`/acompanhar/${token}`);
   return {};
 }

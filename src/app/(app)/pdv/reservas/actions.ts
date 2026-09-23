@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
+import { mensagemDoBanco } from "@/lib/erro-banco";
 
 const CAMINHO = "/pdv/reservas";
 
@@ -128,7 +129,7 @@ export async function criarReserva(e: {
       session_id: caixa,
     },
   });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
 
   revalidatePath(CAMINHO);
   revalidatePath("/estoque/aparelhos");
@@ -154,7 +155,7 @@ export async function atualizarReserva(e: {
       reason: e.motivo ?? null,
     },
   });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
 
   revalidatePath(CAMINHO);
   revalidatePath("/estoque/aparelhos");
@@ -168,7 +169,7 @@ export async function expirarVencidas() {
   const { data, error } = await supabase.rpc("reservation_expire_due", {
     p: { store_id: storeId },
   });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
   revalidatePath(CAMINHO);
   return { vencidas: Number((data as { vencidas?: number })?.vencidas ?? 0) };
 }

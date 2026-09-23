@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
 import { parseDecimal } from "@/lib/format";
+import { mensagemDoBanco } from "@/lib/erro-banco";
 
 export type ActionState = { error?: string; ok?: boolean };
 
@@ -104,7 +105,7 @@ export async function receivePo(input: {
       })),
     },
   });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
   revalidatePath(`/compras/${input.poId}`);
   revalidatePath("/compras");
   revalidatePath("/estoque");

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
 import { parseDecimal, isoLocal } from "@/lib/format";
+import { mensagemDoBanco } from "@/lib/erro-banco";
 
 export type ActionState = { error?: string; ok?: boolean };
 
@@ -141,7 +142,7 @@ export async function completeSale(input: {
       })),
     },
   });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
 
   revalidatePath("/pdv");
   revalidatePath("/dashboard");

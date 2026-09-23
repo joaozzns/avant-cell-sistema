@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
 import { parseDecimal } from "@/lib/format";
+import { mensagemDoBanco } from "@/lib/erro-banco";
 
 export type ActionState = { error?: string; ok?: boolean };
 
@@ -17,7 +18,7 @@ export async function settleReceivable(input: {
     p_discount: input.discount ?? 0,
     p_account: input.accountId ?? null,
   });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
   revalidatePath("/financeiro/receber");
   revalidatePath("/financeiro");
   return { ok: true };
@@ -31,7 +32,7 @@ export async function settlePayable(input: {
   const { error } = await supabase.rpc("settle_payable", {
     p_id: input.id, p_amount: input.amount, p_account: input.accountId,
   });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
   revalidatePath("/financeiro/pagar");
   revalidatePath("/financeiro");
   return { ok: true };

@@ -6,6 +6,7 @@ import { getSessionContext } from "@/lib/context";
 import { parseDecimal, isoLocal } from "@/lib/format";
 import { imeiValido } from "@/lib/imei";
 import { enfileirarAvisoOs } from "@/lib/avisos";
+import { mensagemDoBanco } from "@/lib/erro-banco";
 
 export type ActionState = { error?: string; ok?: boolean };
 
@@ -144,7 +145,7 @@ export async function setOsStatus(osId: string, status: string): Promise<ActionS
     .from("service_orders")
     .update({ status })
     .eq("id", osId);
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
   await enfileirarAvisoOs(supabase, { osId, gatilho: status, companyId, userId });
   revalidatePath(`/os/${osId}`);
   revalidatePath("/os");
@@ -285,7 +286,7 @@ export async function sendQuote(quoteId: string, osId: string): Promise<ActionSt
     .update({ status: "awaiting_approval" })
     .eq("id", osId)
     .eq("status", "diagnosing");
-  if (stErr) return { error: stErr.message.replace(/^.*?: /, "") };
+  if (stErr) return { error: mensagemDoBanco(stErr.message) };
 
   await enfileirarAvisoOs(supabase, { osId, gatilho: "awaiting_approval", companyId, userId });
   revalidatePath(`/os/${osId}`);
@@ -316,7 +317,7 @@ export async function decideQuoteInPerson(
     .from("service_orders")
     .update({ status: approve ? "approved" : "unrepaired" })
     .eq("id", osId);
-  if (stErr) return { error: stErr.message.replace(/^.*?: /, "") };
+  if (stErr) return { error: mensagemDoBanco(stErr.message) };
 
   await enfileirarAvisoOs(supabase, {
     osId, gatilho: approve ? "approved" : "unrepaired", companyId, userId,
@@ -437,7 +438,7 @@ export async function deliverOs(input: {
       })),
     },
   });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
   await enfileirarAvisoOs(supabase, {
     osId: input.osId, gatilho: "delivered", companyId, userId,
   });
@@ -455,7 +456,7 @@ export async function cancelOs(osId: string, reason: string): Promise<ActionStat
     .from("service_orders")
     .update({ status: "canceled", canceled_reason: reason })
     .eq("id", osId);
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
   revalidatePath("/os");
   redirect("/os");
 }

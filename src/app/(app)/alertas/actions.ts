@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
+import { mensagemDoBanco } from "@/lib/erro-banco";
 
 const CAMINHO = "/alertas";
 
@@ -9,7 +10,7 @@ const CAMINHO = "/alertas";
 export async function recalcular() {
   const { supabase, storeId } = await getSessionContext();
   const { data, error } = await supabase.rpc("alerts_refresh", { p: { store_id: storeId } });
-  if (error) return { error: error.message.replace(/^.*?: /, "") };
+  if (error) return { error: mensagemDoBanco(error.message) };
   revalidatePath(CAMINHO);
   revalidatePath("/dashboard");
   return {
