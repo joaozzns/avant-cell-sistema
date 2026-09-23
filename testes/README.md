@@ -32,6 +32,7 @@ Credenciais: `AVC_TESTE_EMAIL` e `AVC_TESTE_SENHA` no `.env.local`
 | `devolucao.test.ts` | dinheiro que sai do caixa, devolver mais do que vendeu, crédito da loja virando dinheiro, produto avariado que não volta ao estoque |
 | `comissao.test.ts` | reapuração sem duplicar, estorno proporcional de venda devolvida, teto do estorno, estorno preservado na reapuração |
 | `taxa-cartao.test.ts` | taxa combinada gravada na venda, taxa por faixa de parcelas, conciliação acusando desconto a mais e não acusando falso positivo |
+| `alertas.test.ts` | central de alertas: cria, não duplica, resolve sozinha quando o problema acaba, respeita o adiamento |
 | `operacao.test.ts` | reserva sem cliente, sinal virando crédito e entrando no caixa, aparelho reservado duas vezes, retenção de sinal com motivo, laboratório externo (sem voltar etapa, conta lançada uma vez) e compra de usado com conferência de IMEI |
 
 ## O que ainda não está coberto

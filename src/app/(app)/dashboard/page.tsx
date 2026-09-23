@@ -8,6 +8,7 @@ import {
   CalendarClock, Cake, TriangleAlert, Info, BellRing, CircleDollarSign,
   Settings, ArrowRight,
 } from "lucide-react";
+import { destinoDoAlerta } from "@/lib/alertas";
 
 export default async function DashboardPage() {
   const { supabase, storeId, storeName } = await getSessionContext();
@@ -26,6 +27,7 @@ export default async function DashboardPage() {
     { count: pagarHoje },
     { count: osAtrasadas },
     { data: aniversariantes },
+    { data: alertas },
   ] = await Promise.all([
     supabase
       .from("sales").select("total")
@@ -54,6 +56,13 @@ export default async function DashboardPage() {
     supabase
       .from("customers").select("id, birthdate")
       .not("birthdate", "is", null).eq("active", true).limit(4000),
+    supabase
+      .from("alerts")
+      .select("id, kind, severity, title, ref_table, ref_id")
+      .eq("status", "open")
+      .order("severity")
+      .limit(6),
+
   ]);
 
   const faturamento = (vendasHoje ?? []).reduce((s, v) => s + Number(v.total), 0);
@@ -65,11 +74,11 @@ export default async function DashboardPage() {
     (c) => typeof c.birthdate === "string" && c.birthdate.slice(5) === mesDia
   ).length;
 
-  const avisos = [
-    pagarHoje ? { texto: `${pagarHoje} conta(s) a pagar vencendo hoje ou vencida(s)`, href: "/financeiro/pagar" } : null,
-    osAtrasadas ? { texto: `${osAtrasadas} OS com prazo de entrega vencido`, href: "/os" } : null,
-    baixos.length ? { texto: `${baixos.length} item(ns) com estoque abaixo do mínimo`, href: "/estoque" } : null,
-  ].filter(Boolean) as { texto: string; href: string }[];
+  /* a central de alertas é quem varre o sistema; aqui mostramos o topo dela */
+  const avisos = (alertas ?? []).map((a) => ({
+    texto: a.title as string,
+    href: destinoDoAlerta(a.kind as string, a.ref_table as string | null, a.ref_id as string | null),
+  }));
 
   return (
     <>
@@ -120,7 +129,7 @@ export default async function DashboardPage() {
 
           <Card>
             <CardHeader className="border-b py-4">
-              <CardTitle className="text-base">Central de avisos</CardTitle>
+              <CardTitle className="text-base">O que precisa de você</CardTitle>
               <CardAction>
                 <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
                   <BellRing className="h-3.5 w-3.5" />
@@ -147,6 +156,10 @@ export default async function DashboardPage() {
                   </Link>
                 ))
               )}
+              <Link href="/alertas"
+                className="justify-self-start text-xs text-muted-foreground underline underline-offset-4 hover:text-primary">
+                ver a central completa →
+              </Link>
             </CardContent>
           </Card>
 

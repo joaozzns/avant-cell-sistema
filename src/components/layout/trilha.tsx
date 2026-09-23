@@ -9,6 +9,7 @@ import { ChevronRight, Home } from "lucide-react";
    o identificador no titulo, entao a trilha diz so "Detalhe". */
 const NOMES: Record<string, string> = {
   dashboard: "Dashboard diário",
+  alertas: "O que precisa de você",
   pdv: "PDV e vendas",
   vendas: "Vendas realizadas",
   caixa: "Caixa",
@@ -52,7 +53,7 @@ const NOMES: Record<string, string> = {
 /* Rotas que existem como pagina — as demais viram texto sem link, para a trilha
    nunca oferecer um caminho que devolve 404. */
 const NAVEGAVEIS = new Set([
-  "/dashboard", "/pdv", "/pdv/vendas", "/pdv/caixa",
+  "/dashboard", "/alertas", "/pdv", "/pdv/vendas", "/pdv/caixa",
   "/estoque", "/estoque/aparelhos", "/estoque/categorias", "/estoque/movimentacoes",
   "/estoque/novo", "/compras", "/compras/fornecedores", "/compras/novo",
   "/os", "/os/nova", "/clientes", "/clientes/novo",

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, ShoppingCart, Package, Wrench, Users, Wallet,
-  FileText, BarChart3, Settings, Globe, ChevronRight, Search, Moon, Sun, Upload,
+  FileText, BarChart3, Settings, Globe, ChevronRight, Search, Moon, Sun, Upload, TriangleAlert,
 } from "lucide-react";
 
 type Item = { href: string; label: string };
@@ -22,6 +22,7 @@ type Modulo = {
 /* A arvore espelha as rotas que existem de fato — nenhum item leva a lugar nenhum. */
 const MODULOS: Modulo[] = [
   { href: "/dashboard", label: "Tela inicial", icon: LayoutDashboard },
+  { href: "/alertas", label: "O que precisa de você", icon: TriangleAlert },
   {
     href: "/pdv", label: "Vendas", icon: ShoppingCart,
     itens: [
