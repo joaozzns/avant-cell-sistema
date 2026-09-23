@@ -10,12 +10,16 @@ export function AppShell({
   nome,
   email,
   storeName,
+  lojas,
+  lojaAtual,
   companyName,
   children,
 }: {
   nome: string;
   email: string;
   storeName?: string;
+  lojas?: { id: string; nome: string }[];
+  lojaAtual?: string;
   companyName?: string;
   children: React.ReactNode;
 }) {
@@ -55,6 +59,8 @@ export function AppShell({
         <Header
           userName={nome}
           storeName={storeName}
+          lojas={lojas}
+          lojaAtual={lojaAtual}
           companyName={companyName}
           onAlternarMenu={() => {
             if (window.matchMedia("(min-width: 768px)").matches) setAberta((v) => !v);

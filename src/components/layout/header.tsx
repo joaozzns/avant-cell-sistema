@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu, CircleHelp, LogOut, Store } from "lucide-react";
+import { SeletorLoja } from "./seletor-loja";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/(auth)/actions";
 
@@ -8,11 +9,15 @@ export function Header({
   userName,
   storeName,
   companyName,
+  lojas = [],
+  lojaAtual = "",
   onAlternarMenu,
 }: {
   userName: string;
   storeName?: string;
   companyName?: string;
+  lojas?: { id: string; nome: string }[];
+  lojaAtual?: string;
   onAlternarMenu: () => void;
 }) {
   return (
@@ -27,7 +32,9 @@ export function Header({
       </button>
 
       <div className="ml-auto flex items-center gap-2 md:gap-4">
-        {(companyName || storeName) && (
+        {lojas.length > 0 ? (
+          <SeletorLoja lojas={lojas} atual={lojaAtual} />
+        ) : (companyName || storeName) && (
           <div className="hidden items-center gap-2 rounded-lg border bg-background px-3 py-2 sm:flex">
             <Store className="h-4 w-4 shrink-0 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">Empresa:</span>
