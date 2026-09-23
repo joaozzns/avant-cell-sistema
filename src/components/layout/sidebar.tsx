@@ -59,6 +59,7 @@ const MODULOS: Modulo[] = [
       { href: "/clientes", label: "Base de clientes" },
       { href: "/clientes/avisos", label: "Avisos ao cliente" },
       { href: "/clientes/modelos", label: "Modelos de mensagem" },
+      { href: "/clientes/lgpd", label: "Pedidos LGPD" },
     ],
   },
   {
