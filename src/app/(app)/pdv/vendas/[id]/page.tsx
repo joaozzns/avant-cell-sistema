@@ -36,7 +36,7 @@ export default async function SaleDetailPage({
     .from("sales")
     .select(`
       id, number, status, subtotal, discount, total, notes, created_at, completed_at, fiscal_doc_id,
-      fiscal_documents:fiscal_doc_id(kind, status, number, series, access_key, environment),
+      fiscal_documents:fiscal_doc_id(kind, status, number, series, access_key, environment, simulated),
       customers(name, cpf_cnpj),
       profiles:seller_id(full_name),
       sale_items(id, qty, returned_qty, unit_price, discount, total, products(name), serialized_units(imei1)),
@@ -182,6 +182,7 @@ export default async function SaleDetailPage({
             const fd = sale.fiscal_documents as unknown as {
               kind: string; status: string; number: number | null;
               series: string | null; access_key: string | null; environment: string;
+              simulated: boolean;
             };
             return (
               <div className="grid gap-1">
@@ -190,12 +191,22 @@ export default async function SaleDetailPage({
                   <Badge variant={fd.status === "authorized" ? "default" : fd.status === "rejected" ? "destructive" : "secondary"}>
                     {fd.status === "authorized" ? "autorizada" : fd.status}
                   </Badge>
-                  {fd.environment !== "production" && (
+                  {fd.simulated ? (
+                    <Badge variant="destructive" className="ml-2">simulada</Badge>
+                  ) : fd.environment !== "production" ? (
                     <Badge variant="outline" className="ml-2">homologação</Badge>
-                  )}
+                  ) : null}
                 </p>
+                {fd.simulated && (
+                  <p className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+                    Esta nota <strong>não existe na SEFAZ</strong>: foi gerada em modo simulado, sem
+                    emissor contratado. O cliente não recebeu nota fiscal desta venda.
+                  </p>
+                )}
                 {fd.access_key && (
-                  <p className="font-mono text-xs text-muted-foreground">chave: {fd.access_key}</p>
+                  <p className="font-mono text-xs text-muted-foreground">
+                    {fd.simulated ? "chave fictícia: " : "chave: "}{fd.access_key}
+                  </p>
                 )}
               </div>
             );

@@ -12,7 +12,7 @@ export default async function DevolverPage({ params }: { params: Promise<{ id: s
       id, number, status, total, customer_id,
       customers(name),
       sale_payments(kind, amount, change_given),
-      sale_returns(total, refund_kind),
+      sale_returns!sale_returns_sale_id_fkey(total, refund_kind),
       sale_items(id, qty, returned_qty, unit_price, total, products(name), serialized_units(imei1))
     `)
     .eq("id", id)

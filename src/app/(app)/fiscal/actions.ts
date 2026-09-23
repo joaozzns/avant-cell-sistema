@@ -6,6 +6,11 @@ import { emitDocument } from "@/lib/fiscal";
 
 export type ActionState = { error?: string; ok?: boolean };
 
+/** Emissão sem emissor contratado não vira nota na SEFAZ. O atendente precisa
+ *  dizer, em letras, que entendeu isso — senão a loja passa meses achando que
+ *  está emitindo nota fiscal. */
+export type EmissaoState = ActionState & { precisaConfirmarSimulacao?: boolean };
+
 async function getGateway(supabase: Awaited<ReturnType<typeof getSessionContext>>["supabase"]) {
   const { data } = await supabase
     .from("integrations")
@@ -18,8 +23,9 @@ async function getGateway(supabase: Awaited<ReturnType<typeof getSessionContext>
 
 export async function issueInvoiceForSale(
   saleId: string,
-  kind: "nfce" | "nfe"
-): Promise<ActionState> {
+  kind: "nfce" | "nfe",
+  confirmouSimulacao = false,
+): Promise<EmissaoState> {
   const { supabase, companyId, storeId } = await getSessionContext();
 
   const { data: sale } = await supabase
@@ -51,6 +57,11 @@ export async function issueInvoiceForSale(
     .maybeSingle();
 
   const gateway = await getGateway(supabase);
+  const simulacao = !(gateway?.provider && gateway.token);
+  if (simulacao && !confirmouSimulacao) {
+    return { precisaConfirmarSimulacao: true };
+  }
+
   const result = await emitDocument({
     gateway,
     kind,
@@ -87,6 +98,7 @@ export async function issueInvoiceForSale(
       protocol: result.protocol ?? null,
       rejection_reason: result.rejectionReason ?? null,
       issued_at: result.status === "authorized" ? new Date().toISOString() : null,
+      simulated: result.simulated,
       gateway_payload: result.simulated ? { simulated: true } : null,
     })
     .select("id")

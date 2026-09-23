@@ -24,7 +24,7 @@ export default async function FiscalPage() {
   const [{ data: docs }, { data: gateway }] = await Promise.all([
     supabase
       .from("fiscal_documents")
-      .select("id, kind, status, number, series, environment, total, access_key, rejection_reason, issued_at, created_at, sales(number)")
+      .select("id, kind, status, number, series, environment, total, access_key, rejection_reason, issued_at, created_at, simulated, sales!fiscal_documents_sale_id_fkey(number)")
       .eq("store_id", storeId)
       .order("created_at", { ascending: false })
       .limit(100),
@@ -32,6 +32,7 @@ export default async function FiscalPage() {
   ]);
 
   const rejected = (docs ?? []).filter((d) => d.status === "rejected").length;
+  const simuladas = (docs ?? []).filter((d) => d.simulated).length;
 
   return (
     <div className="grid gap-4">
@@ -49,6 +50,18 @@ export default async function FiscalPage() {
           Configurações fiscais
         </Link>
       </div>
+
+      {simuladas > 0 && (
+        <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm">
+          <strong className="text-destructive">
+            {simuladas} nota(s) em modo simulado — elas não existem na SEFAZ.
+          </strong>
+          <p className="mt-1 text-muted-foreground">
+            Servem para treinar o fluxo. Para emitir nota fiscal de verdade, contrate um emissor
+            (Focus NFe, Nuvem Fiscal, PlugNotas) e cadastre o token em Configurações fiscais.
+          </p>
+        </div>
+      )}
 
       <div className="min-w-0 rounded-lg border bg-background">
         <Table>
@@ -78,12 +91,14 @@ export default async function FiscalPage() {
                   <TableCell className="text-muted-foreground">{fmtDateTime(d.issued_at ?? d.created_at)}</TableCell>
                   <TableCell className="text-right">{brl(d.total)}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">
-                      {d.environment === "production" ? "produção" : "homolog."}
+                    <Badge variant={d.simulated ? "destructive" : "outline"}>
+                      {d.simulated ? "simulada" : d.environment === "production" ? "produção" : "homolog."}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={st.variant}>{st.label}</Badge>
+                    <Badge variant={d.simulated ? "outline" : st.variant}>
+                      {d.simulated ? `${st.label} (só no sistema)` : st.label}
+                    </Badge>
                     {d.rejection_reason && (
                       <p className="mt-0.5 max-w-52 text-xs text-destructive">{d.rejection_reason}</p>
                     )}

@@ -25,6 +25,15 @@ const MOVE_LABEL: Record<string, string> = {
   trade_in: "Trade-in",
 };
 
+/* a devolução grava o destino do produto no motivo; sem tradução, a tela
+   mostrava "damage" para o lojista */
+const MOTIVO: Record<string, string> = {
+  stock: "Voltou para o estoque",
+  damage: "Avariado, não vende",
+  supplier_warranty: "Garantia do fornecedor",
+  os: "Foi para a assistência",
+};
+
 export default async function MovementsPage() {
   const { supabase, storeId } = await getSessionContext();
   const { data: moves } = await supabase
@@ -63,7 +72,7 @@ export default async function MovementsPage() {
                 <TableCell className={`text-right font-medium ${Number(m.qty) < 0 ? "text-destructive" : "text-green-600"}`}>
                   {Number(m.qty) > 0 ? `+${m.qty}` : m.qty}
                 </TableCell>
-                <TableCell className="text-muted-foreground">{m.reason ?? "—"}</TableCell>
+                <TableCell className="text-muted-foreground">{m.reason ? MOTIVO[m.reason] ?? m.reason : "—"}</TableCell>
                 <TableCell className="text-muted-foreground">
                   {(m.profiles as { full_name?: string } | null)?.full_name ?? "—"}
                 </TableCell>
