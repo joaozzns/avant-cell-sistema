@@ -55,7 +55,7 @@ after(async () => {
   await alterar("partner_settings", "id=eq.true",
     { commission_kind: null, percent: null, fixed_amount: null });
   await limpar();
-  await alterar("profiles", `id=eq.${usuario}`, { is_staff: eraStaff });
+  await chamar("staff_set", { p_user: usuario, p_flag: eraStaff });
 });
 
 test("link inválido não abre carteira nenhuma", async () => {
@@ -126,4 +126,35 @@ test("trocar o link derruba o anterior", async () => {
   token = r.dados.token as string;
   const novo = await painel(token);
   assert.equal(novo.erro, undefined);
+});
+
+test("usuário comum não se promove a equipe Avant Cell", async () => {
+  await alterar("profiles", `id=eq.${usuario}`, { is_staff: false });
+
+  /* pela função: tem que recusar */
+  const pelaFuncao = await chamar("staff_set", { p_user: usuario, p_flag: true });
+  assert.ok(pelaFuncao.erro, "promover a si mesmo sem ser da equipe tem que ser recusado");
+
+  /* pela API, editando o próprio perfil: é o caminho que estava aberto */
+  try {
+    await alterar("profiles", `id=eq.${usuario}`, { is_staff: true });
+    const depois = await um<{ is_staff: boolean }>(`profiles?id=eq.${usuario}&select=is_staff`);
+    assert.equal(depois.is_staff, false,
+      "editar o próprio perfil não pode conceder acesso ao negócio da Avant Cell");
+  } finally {
+    await alterar("profiles", `id=eq.${usuario}`, { is_staff: eraStaff });
+  }
+});
+
+test("trocar de empresa pelo próprio perfil não pode", async () => {
+  const antes = await um<{ company_id: string }>(`profiles?id=eq.${usuario}&select=company_id`);
+  try {
+    await alterar("profiles", `id=eq.${usuario}`, { company_id: null });
+    const depois = await um<{ company_id: string }>(`profiles?id=eq.${usuario}&select=company_id`);
+    assert.equal(depois.company_id, antes.company_id, "ninguém muda de empresa sozinho");
+  } finally {
+    /* se a proteção ainda não estiver no banco, devolve o vínculo na marra:
+       teste de segurança não pode deixar a base quebrada atrás de si */
+    await alterar("profiles", `id=eq.${usuario}`, { company_id: antes.company_id });
+  }
 });

@@ -81,7 +81,7 @@ export function PainelParceiros({
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {[
           ["Lojas assinantes", String(ativas)],
           ["Receita mensal", brl(mrrTotal)],
@@ -169,7 +169,7 @@ export function PainelParceiros({
         </CardHeader>
         <CardContent className="grid gap-3 pt-4">
           {novo && (
-            <div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-3">
+            <div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-2 lg:grid-cols-3">
               <input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome *"
                 className="h-9 rounded-md border bg-background px-3 text-sm" />
               <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mail"
@@ -197,33 +197,46 @@ export function PainelParceiros({
 
           {representantes.map((r) => (
             <div key={r.id} className={`grid gap-2 rounded-lg border p-3 ${r.ativo ? "" : "opacity-60"}`}>
-              <div className="flex flex-wrap items-center gap-2">
-                <strong className="text-sm">{r.nome}</strong>
-                {r.principal && <Badge><Crown className="mr-1 h-3 w-3" /> principal</Badge>}
-                {!r.ativo && <Badge variant="outline">inativo</Badge>}
-                {r.email && <span className="text-xs text-muted-foreground">{r.email}</span>}
-                <span className="ml-auto text-xs text-muted-foreground">
+              <div className="grid gap-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <strong className="text-sm">{r.nome}</strong>
+                  {r.principal && <Badge><Crown className="mr-1 h-3 w-3" /> principal</Badge>}
+                  {!r.ativo && <Badge variant="outline">inativo</Badge>}
+                </div>
+                <p className="text-xs text-muted-foreground">
                   {r.ativas} loja(s) ativa(s) · {brl(r.mrr)}/mês
-                </span>
+                  {r.email && <span className="ml-2 break-all">{r.email}</span>}
+                </p>
               </div>
 
-              <div className="grid gap-1.5 text-xs">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="w-28 shrink-0 text-muted-foreground">Link de convite</span>
-                  <code className="min-w-0 flex-1 truncate rounded bg-muted px-2 py-1">{r.convite}</code>
-                  <Button size="sm" variant="ghost" onClick={() => copiar(r.convite, `c-${r.id}`)}>
-                    <Copy className="h-3.5 w-3.5" /> {copiado === `c-${r.id}` ? "copiado" : "copiar"}
-                  </Button>
+              <div className="grid gap-3 text-xs">
+                <div className="grid gap-1">
+                  <span className="text-muted-foreground">
+                    Link de convite <span className="opacity-70">— mande para ele divulgar</span>
+                  </span>
+                  <code className="block break-all rounded bg-muted px-2 py-1.5">{r.convite}</code>
+                  <div>
+                    <Button size="sm" variant="outline" onClick={() => copiar(r.convite, `c-${r.id}`)}>
+                      <Copy className="h-3.5 w-3.5" /> {copiado === `c-${r.id}` ? "copiado!" : "copiar convite"}
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="w-28 shrink-0 text-muted-foreground">Painel dele</span>
-                  <code className="min-w-0 flex-1 truncate rounded bg-muted px-2 py-1">{r.link}</code>
-                  <Button size="sm" variant="ghost" onClick={() => copiar(r.link, `p-${r.id}`)}>
-                    <Copy className="h-3.5 w-3.5" /> {copiado === `p-${r.id}` ? "copiado" : "copiar"}
-                  </Button>
-                  <a href={r.link} target="_blank" rel="noreferrer">
-                    <Button size="sm" variant="ghost"><ExternalLink className="h-3.5 w-3.5" /></Button>
-                  </a>
+
+                <div className="grid gap-1">
+                  <span className="text-muted-foreground">
+                    Painel dele <span className="opacity-70">— a carteira, no celular</span>
+                  </span>
+                  <code className="block break-all rounded bg-muted px-2 py-1.5">{r.link}</code>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="outline" onClick={() => copiar(r.link, `p-${r.id}`)}>
+                      <Copy className="h-3.5 w-3.5" /> {copiado === `p-${r.id}` ? "copiado!" : "copiar painel"}
+                    </Button>
+                    <a href={r.link} target="_blank" rel="noreferrer">
+                      <Button size="sm" variant="ghost">
+                        <ExternalLink className="h-3.5 w-3.5" /> abrir
+                      </Button>
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -262,15 +275,19 @@ export function PainelParceiros({
             const aberto = editando === l.empresaId;
             return (
               <div key={l.empresaId} className="grid gap-2 rounded-lg border p-3 text-sm">
-                <div className="flex flex-wrap items-center gap-2">
-                  <strong>{l.nome}</strong>
-                  <Badge variant={s.tom}>{s.rotulo}</Badge>
-                  {l.valor > 0 && <span className="text-xs text-muted-foreground">{brl(l.valor)}/mês</span>}
-                  <span className="text-xs text-muted-foreground">desde {fmtDate(l.desde)}</span>
-                  <span className={`text-xs ${rep ? "text-muted-foreground" : "text-destructive"}`}>
-                    {rep ? `venda de ${rep.nome}` : "sem representante"}
-                  </span>
-                  <Button size="sm" variant="ghost" className="ml-auto"
+                <div className="grid gap-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <strong className="min-w-0 break-words">{l.nome}</strong>
+                    <Badge variant={s.tom}>{s.rotulo}</Badge>
+                    {l.valor > 0 && <span className="text-xs text-muted-foreground">{brl(l.valor)}/mês</span>}
+                  </div>
+                  <p className="flex flex-wrap gap-x-3 text-xs text-muted-foreground">
+                    <span>desde {fmtDate(l.desde)}</span>
+                    <span className={rep ? "" : "text-destructive"}>
+                      {rep ? `venda de ${rep.nome}` : "sem representante"}
+                    </span>
+                  </p>
+                  <Button size="sm" variant="ghost" className="justify-self-start"
                     onClick={() => {
                       if (aberto) { setEditando(null); return; }
                       setEditando(l.empresaId);

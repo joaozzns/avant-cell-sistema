@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getSessionContext } from "@/lib/context";
+import { mensagemDoBanco } from "@/lib/erro-banco";
 
 export type EstadoConvite = { erro?: string; link?: string; token?: string };
 export type Resultado = { erro?: string };
@@ -58,4 +59,16 @@ export async function removerMembro(userId: string): Promise<Resultado> {
   const { error } = await supabase.rpc("team_remove_member", { p_user: userId });
   revalidatePath("/admin");
   return error ? { erro: error.message } : {};
+}
+
+/** Marca (ou desmarca) alguém como equipe Avant Cell — quem vê o painel de
+ *  representantes, assinaturas e comissão do seu negócio. Só quem já é da
+ *  equipe consegue promover; a regra mora no banco, não aqui. */
+export async function marcarEquipeAvantCell(userId: string, equipe: boolean) {
+  const { supabase } = await getSessionContext();
+  const { error } = await supabase.rpc("staff_set", { p_user: userId, p_flag: equipe });
+  if (error) return { erro: mensagemDoBanco(error.message) };
+  revalidatePath("/admin");
+  revalidatePath("/", "layout");
+  return {};
 }

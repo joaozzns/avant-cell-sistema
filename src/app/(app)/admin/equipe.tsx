@@ -1,17 +1,17 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
-import { Copy, Check, UserPlus, Trash2, X, MessageCircle, Clock, Link2 } from "lucide-react";
+import { Copy, Check, UserPlus, Trash2, X, MessageCircle, Clock, Link2, Handshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { criarConvite, cancelarConvite, mudarPapel, removerMembro, type EstadoConvite } from "./equipe-actions";
+import { criarConvite, marcarEquipeAvantCell, cancelarConvite, mudarPapel, removerMembro, type EstadoConvite } from "./equipe-actions";
 
 type Loja = { id: string; name: string };
 type Papel = { id: string; key: string; name: string };
 type Vinculo = { store_id: string; role_id: string; role_key: string; role_name: string; store_name: string };
-type Membro = { id: string; nome: string; email: string; ativo: boolean; vinculos: Vinculo[] };
+type Membro = { id: string; nome: string; email: string; ativo: boolean; equipeAvantCell: boolean; vinculos: Vinculo[] };
 type Convite = { id: string; token: string; email: string | null; loja: string; papel: string; expira: string };
 
 const campo = "h-9 w-full rounded-lg border bg-background px-3 text-sm outline-none transition-colors focus:border-ring disabled:opacity-60";
@@ -54,10 +54,12 @@ function CopiarLink({ link, loja, compacto }: { link: string; loja: string; comp
 }
 
 export function Equipe({
-  membros, lojas, papeis, convites, usuarioAtual, podeGerenciar, origem,
+  membros, lojas, papeis, convites, usuarioAtual, podeGerenciar, origem, souEquipeAvantCell,
 }: {
   membros: Membro[]; lojas: Loja[]; papeis: Papel[]; convites: Convite[];
   usuarioAtual: string; podeGerenciar: boolean; origem: string;
+  /* só quem já é da equipe Avant Cell enxerga (e usa) esta marcação */
+  souEquipeAvantCell: boolean;
 }) {
   const [abrirConvite, setAbrirConvite] = useState(false);
   const [estado, acao, enviando] = useActionState<EstadoConvite, FormData>(criarConvite, {});
@@ -142,6 +144,11 @@ export function Equipe({
                     <span className="truncate font-medium">{m.nome || m.email}</span>
                     {souEu && <Badge variant="secondary">você</Badge>}
                     {ehDono && <Badge>dono</Badge>}
+                    {souEquipeAvantCell && m.equipeAvantCell && (
+                      <Badge variant="outline" className="border-primary/50 text-primary">
+                        equipe Avant Cell
+                      </Badge>
+                    )}
                     {!m.ativo && <Badge variant="destructive">inativo</Badge>}
                   </div>
                   <p className="truncate text-xs text-muted-foreground">{m.email}</p>
@@ -170,6 +177,21 @@ export function Equipe({
                       </label>
                     );
                   })}
+                  {souEquipeAvantCell && (
+                    <Button
+                      variant={m.equipeAvantCell ? "secondary" : "outline"} size="sm" disabled={pendente}
+                      title="Quem é equipe Avant Cell vê representantes, assinaturas e comissão do seu negócio"
+                      onClick={() => {
+                        const aviso = m.equipeAvantCell
+                          ? `Tirar ${m.nome || m.email} da equipe Avant Cell? A pessoa deixa de ver representantes e assinaturas.`
+                          : `Marcar ${m.nome || m.email} como equipe Avant Cell?\n\nEla vai enxergar quanto cada loja paga, quem vendeu e a comissão a pagar.`;
+                        if (confirm(aviso)) executar(() => marcarEquipeAvantCell(m.id, !m.equipeAvantCell));
+                      }}
+                    >
+                      <Handshake className="h-4 w-4" />
+                      {m.equipeAvantCell ? "Tirar da equipe Avant Cell" : "Equipe Avant Cell"}
+                    </Button>
+                  )}
                   {podeGerenciar && !souEu && !ehDono && (
                     <Button
                       variant="outline" size="sm" disabled={pendente}

@@ -11,7 +11,7 @@ export default async function AdminPage() {
 
   const [{ data: users }, { data: stores }, { data: roles }, { data: convites }] = await Promise.all([
     supabase.from("profiles")
-      .select("id, full_name, email, active, user_stores(store_id, role_id, roles(key, name), stores(name))")
+      .select("id, full_name, email, active, is_staff, user_stores(store_id, role_id, roles(key, name), stores(name))")
       .eq("company_id", companyId).order("full_name"),
     supabase.from("stores").select("id, name, active").order("name"),
     supabase.from("roles").select("id, key, name, is_system").order("is_system", { ascending: false }),
@@ -27,6 +27,7 @@ export default async function AdminPage() {
     nome: (u.full_name as string) ?? "",
     email: (u.email as string) ?? "",
     ativo: Boolean(u.active),
+    equipeAvantCell: Boolean(u.is_staff),
     vinculos: ((u.user_stores ?? []) as unknown as LinhaVinculo[]).map((l) => ({
       store_id: l.store_id, role_id: l.role_id,
       role_key: l.roles?.key ?? "", role_name: l.roles?.name ?? "?", store_name: l.stores?.name ?? "?",
@@ -62,6 +63,7 @@ export default async function AdminPage() {
           usuarioAtual={userId}
           podeGerenciar={podeGerenciar}
           origem={origem}
+          souEquipeAvantCell={Boolean(membros.find((m) => m.id === userId)?.equipeAvantCell)}
         />
 
         <div className="grid content-start gap-6">
