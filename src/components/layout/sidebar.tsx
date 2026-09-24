@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, ShoppingCart, Package, Wrench, Users, Wallet,
-  FileText, BarChart3, Settings, Globe, ChevronRight, Search, Moon, Sun, Upload, TriangleAlert,
+  FileText, BarChart3, Settings, Globe, ChevronRight, Search, Moon, Sun, Upload, TriangleAlert, Handshake,
 } from "lucide-react";
 
 type Item = { href: string; label: string };
@@ -102,6 +102,7 @@ const MODULOS: Modulo[] = [
   },
   { href: "/importar", label: "Importar dados", icon: Upload },
   { href: "/portal", label: "Portal do cliente", icon: Globe },
+  { href: "/parceiros", label: "Representantes Avant Cell", icon: Handshake },
 ];
 
 function ativo(pathname: string, href: string) {
@@ -114,11 +115,14 @@ export function Sidebar({
   nome,
   email,
   plano,
+  equipeAvantCell,
   onNavegar,
 }: {
   nome: string;
   email: string;
   plano?: string;
+  /* a área de representantes é do negócio da Avant Cell, não da loja */
+  equipeAvantCell?: boolean;
   onNavegar?: () => void;
 }) {
   const pathname = usePathname();
@@ -154,14 +158,17 @@ export function Sidebar({
     }
   }
 
+  const permitidos = MODULOS.filter(
+    (m) => equipeAvantCell || m.href !== "/parceiros");
+
   const termo = busca.trim().toLowerCase();
   const visiveis = termo
-    ? MODULOS.filter(
+    ? permitidos.filter(
         (m) =>
           m.label.toLowerCase().includes(termo) ||
           m.itens?.some((i) => i.label.toLowerCase().includes(termo))
       )
-    : MODULOS;
+    : permitidos;
 
   const iniciais = nome
     .split(" ")

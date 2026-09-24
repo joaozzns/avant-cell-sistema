@@ -11,7 +11,7 @@ import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
 } from "@/components/ui/card";
 
-export function SignupForm({ convite }: { convite?: string }) {
+export function SignupForm({ convite, indicacao }: { convite?: string; indicacao?: string }) {
   const [state, formAction, pending] = useActionState<{ error?: string }, FormData>(signup, {});
 
   return (
@@ -25,6 +25,7 @@ export function SignupForm({ convite }: { convite?: string }) {
       <CardContent>
         <form action={formAction} className="grid gap-4">
           {convite && <input type="hidden" name="convite" value={convite} />}
+          {indicacao && <input type="hidden" name="indicacao" value={indicacao} />}
           <div className="grid gap-2">
             <Label htmlFor="full_name">Nome completo</Label>
             <Input id="full_name" name="full_name" required />

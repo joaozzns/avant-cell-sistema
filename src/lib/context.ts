@@ -27,7 +27,7 @@ export const getSessionContext = cache(async () => {
   const [{ data: profile }, { data: userStore }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, company_id, companies(name)")
+      .select("id, full_name, company_id, is_staff, companies(name)")
       .eq("id", userId)
       .single(),
     supabase
@@ -59,6 +59,7 @@ export const getSessionContext = cache(async () => {
     fullName: profile.full_name,
     companyId: profile.company_id as string,
     companyName: company?.name,
+    equipeAvantCell: Boolean(profile.is_staff),
     storeId: store.id,
     storeName: store.name,
     lojas: lojas.map((l) => ({ id: l.id, nome: l.name })),

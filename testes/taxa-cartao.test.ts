@@ -10,6 +10,7 @@ import {
   alterar, apagar, caixaAberto, centavos, chamar, contexto, criarProduto,
   inserir, limpar, marca, porEstoque, um, vender,
 } from "./apoio.ts";
+import { isoLocal } from "../src/lib/format.ts";
 
 let loja = "", empresa = "", sessao = "", produto = "";
 let credito = "", parcelado = "";
@@ -88,7 +89,7 @@ test("conciliação acusa quando a maquininha desconta mais do que o combinado",
   const lote = `${etiqueta}-diverge`;
   await inserir("card_settlements", {
     company_id: empresa, store_id: loja, acquirer: `${etiqueta} adquirente`,
-    gross: 1000, fee: 45, net: 955, expected_date: new Date().toISOString().slice(0, 10),
+    gross: 1000, fee: 45, net: 955, expected_date: isoLocal(),
     import_batch: lote, status: "pending", raw: {},
   });
 
@@ -111,7 +112,7 @@ test("taxa dentro do combinado é conciliada sem alarme falso", async () => {
   const lote = `${etiqueta}-ok`;
   await inserir("card_settlements", {
     company_id: empresa, store_id: loja, acquirer: `${etiqueta} adquirente`,
-    gross: 500, fee: 15.95, net: 484.05, expected_date: new Date().toISOString().slice(0, 10),
+    gross: 500, fee: 15.95, net: 484.05, expected_date: isoLocal(),
     import_batch: lote, status: "pending", raw: {},
   });
 

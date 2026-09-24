@@ -10,6 +10,7 @@ const PUBLIC_ROUTES = [
   "/recuperar-senha",
   "/acompanhar",
   "/vendedor",   /* painel pessoal do vendedor: o link é a credencial */
+  "/parceiro",   /* carteira do representante Avant Cell */
   "/auth/sessao",
   "/convite",
 ];

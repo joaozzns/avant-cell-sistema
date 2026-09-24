@@ -63,8 +63,10 @@ test("forma de pagamento nunca aparece como código", () => {
 });
 
 test("prazo do laboratório externo", () => {
-  const ontem = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-  const amanha = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+  /* datas montadas no fuso de quem usa: "ontem em UTC" às 23h no Brasil ainda
+     é hoje aqui, e o teste passaria a mentir dependendo da hora em que roda */
+  const ontem = isoLocal(new Date(Date.now() - 86400000));
+  const amanha = isoLocal(new Date(Date.now() + 86400000));
   assert.equal(atrasado(ontem, "in_repair"), true);
   assert.equal(atrasado(amanha, "in_repair"), false);
   assert.equal(atrasado(ontem, "received"), false, "aparelho que já voltou não está atrasado");
@@ -72,7 +74,7 @@ test("prazo do laboratório externo", () => {
 });
 
 test("reserva vencida só conta enquanto está em aberto", () => {
-  const ontem = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const ontem = isoLocal(new Date(Date.now() - 86400000));
   assert.equal(vencida(ontem, "available"), true);
   assert.equal(vencida(ontem, "delivered"), false);
   assert.equal(vencida(null, "available"), false);

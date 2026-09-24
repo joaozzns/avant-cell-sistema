@@ -9,6 +9,7 @@ import {
   buscar, caixaAberto, centavos, chamar, contexto, criarCliente, descartar,
   inserir, limpar, marca, um,
 } from "./apoio.ts";
+import { isoLocal } from "../src/lib/format.ts";
 
 let loja = "", empresa = "", usuario = "", sessao = "", cliente = "";
 let modelo = "", unidade = "";
@@ -60,7 +61,7 @@ test("sinal em dinheiro vira crédito do cliente e entra no caixa", async () => 
     p: {
       store_id: loja, customer_id: cliente, unit_id: unidade, agreed_price: 2000,
       deposit_amount: 300, deposit_kind: "cash", session_id: sessao,
-      pickup_deadline: new Date(Date.now() + 5 * 86400000).toISOString().slice(0, 10),
+      pickup_deadline: isoLocal(new Date(Date.now() + 5 * 86400000)),
     },
   });
   assert.equal(erro, undefined);

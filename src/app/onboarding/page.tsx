@@ -11,6 +11,10 @@ import {
 
 export default function OnboardingPage() {
   const [state, formAction, pending] = useActionState<{ error?: string }, FormData>(createCompany, {});
+  /* indicação do representante, carregada desde o link de convite */
+  const indicacao = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("v") ?? ""
+    : "";
 
   return (
     <div className="min-h-dvh grid place-items-center bg-muted/40 px-4">
@@ -24,6 +28,7 @@ export default function OnboardingPage() {
         </CardHeader>
         <CardContent>
           <form action={formAction} className="grid gap-4">
+            {indicacao && <input type="hidden" name="indicacao" value={indicacao} />}
             <div className="grid gap-2">
               <Label htmlFor="company_name">Nome da empresa</Label>
               <Input id="company_name" name="company_name" placeholder="Avant Cell" required />

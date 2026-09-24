@@ -7,7 +7,8 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   /* mesmo contexto que a página vai pedir: cache() garante uma consulta só */
-  const { fullName, email, storeName, companyName, storeId, lojas } = await getSessionContext();
+  const { fullName, email, storeName, companyName, storeId, lojas, equipeAvantCell } =
+    await getSessionContext();
 
   return (
     <AppShell
@@ -17,6 +18,7 @@ export default async function AppLayout({
       companyName={companyName}
       lojas={lojas}
       lojaAtual={storeId}
+      equipeAvantCell={equipeAvantCell}
     >
       {children}
     </AppShell>

@@ -12,6 +12,7 @@ export function AppShell({
   storeName,
   lojas,
   lojaAtual,
+  equipeAvantCell,
   companyName,
   children,
 }: {
@@ -20,6 +21,7 @@ export function AppShell({
   storeName?: string;
   lojas?: { id: string; nome: string }[];
   lojaAtual?: string;
+  equipeAvantCell?: boolean;
   companyName?: string;
   children: React.ReactNode;
 }) {
@@ -37,7 +39,7 @@ export function AppShell({
         )}
       >
         <div className="sticky top-0 h-dvh">
-          <Sidebar nome={nome} email={email} />
+          <Sidebar nome={nome} email={email} equipeAvantCell={equipeAvantCell} />
         </div>
       </div>
 
@@ -50,7 +52,7 @@ export function AppShell({
             className="fixed inset-0 z-30 bg-black/45 md:hidden"
           />
           <div className="fixed inset-y-0 left-0 z-40 md:hidden">
-            <Sidebar nome={nome} email={email} onNavegar={() => setGaveta(false)} />
+            <Sidebar nome={nome} email={email} equipeAvantCell={equipeAvantCell} onNavegar={() => setGaveta(false)} />
           </div>
         </>
       )}

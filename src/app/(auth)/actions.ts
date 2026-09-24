@@ -43,6 +43,7 @@ export async function signup(_prev: { error?: string }, formData: FormData) {
   }
 
   const convite = String(formData.get("convite") ?? "");
+  const indicacao = String(formData.get("indicacao") ?? "");
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -58,7 +59,7 @@ export async function signup(_prev: { error?: string }, formData: FormData) {
     await seguirConvite(supabase, convite);
   }
   revalidatePath("/", "layout");
-  redirect("/onboarding");
+  redirect(TOKEN.test(indicacao) ? `/onboarding?v=${indicacao}` : "/onboarding");
 }
 
 export async function requestPasswordReset(
@@ -85,12 +86,14 @@ export async function createCompany(
   const supabase = await createClient();
   const companyName = String(formData.get("company_name") ?? "").trim();
   const storeName = String(formData.get("store_name") ?? "").trim() || "Loja principal";
+  const indicacao = String(formData.get("indicacao") ?? "").trim();
 
   if (!companyName) return { error: "Informe o nome da empresa." };
 
   const { error } = await supabase.rpc("create_company", {
     p_company_name: companyName,
     p_store_name: storeName,
+    p_referral: TOKEN.test(indicacao) ? indicacao : null,
   });
   if (error) {
     return { error: "Erro ao criar a empresa: " + error.message };

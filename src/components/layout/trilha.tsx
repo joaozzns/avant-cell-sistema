@@ -47,6 +47,7 @@ const NOMES: Record<string, string> = {
   vendedores: "Vendedores",
   "formas-de-pagamento": "Formas de pagamento",
   portal: "Portal do cliente",
+  parceiros: "Representantes Avant Cell",
   importar: "Importar dados",
   devolver: "Devolução / troca",
 };
@@ -64,7 +65,7 @@ const NAVEGAVEIS = new Set([
   "/financeiro", "/financeiro/receber", "/financeiro/pagar", "/financeiro/dre",
   "/fiscal", "/fiscal/configuracoes",
   "/relatorios", "/relatorios/vendas", "/relatorios/assistencia", "/relatorios/estoque",
-  "/admin", "/admin/auditoria", "/admin/termos", "/admin/formas-de-pagamento", "/admin/vendedores", "/portal", "/importar",
+  "/parceiros", "/admin", "/admin/auditoria", "/admin/termos", "/admin/formas-de-pagamento", "/admin/vendedores", "/portal", "/importar",
 ]);
 
 export function Trilha() {
