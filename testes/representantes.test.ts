@@ -9,8 +9,8 @@ import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  alterar, apagar, buscar, centavos, chamar, contexto, descartar, inserir,
-  limpar, marca, um, URL_API,
+  alterar, apagar, buscar, centavos, chamar, comoAnonimo, contexto, descartar,
+  inserir, limpar, marca, tentarAlterar, um, URL_API,
 } from "./apoio.ts";
 
 let empresa = "", usuario = "";
@@ -104,18 +104,16 @@ test("valor fixo conta as lojas ativadas no mês", async () => {
   assert.equal(centavos(Number(p.comissao.mes)), 150);
 });
 
-test("lojista não enxerga o negócio do dono", async () => {
-  await alterar("profiles", `id=eq.${usuario}`, { is_staff: false });
+test("sem ser da equipe, o negócio do dono não responde", async () => {
+  /* a política destas tabelas é app.is_staff(): sem ela, nada volta — nem para
+     quem tem a chave pública do projeto na mão */
+  const reps = await comoAnonimo("partners?select=name");
+  const assinaturas = await comoAnonimo("subscriptions?select=monthly_amount");
+  const config = await comoAnonimo("partner_settings?select=commission_kind");
 
-  const reps = await buscar(`partners?select=name`);
-  const assinaturas = await buscar(`subscriptions?select=monthly_amount`);
-  const config = await buscar(`partner_settings?select=commission_kind`);
-
-  assert.equal(reps.length, 0, "quem não é equipe não vê representante");
-  assert.equal(assinaturas.length, 0, "nem quanto cada loja paga");
-  assert.equal(config.length, 0, "nem a regra de comissão");
-
-  await alterar("profiles", `id=eq.${usuario}`, { is_staff: true });
+  assert.deepEqual(reps.corpo, [], "quem não é equipe não vê representante");
+  assert.deepEqual(assinaturas.corpo, [], "nem quanto cada loja paga");
+  assert.deepEqual(config.corpo, [], "nem a regra de comissão");
 });
 
 test("trocar o link derruba o anterior", async () => {
@@ -128,33 +126,23 @@ test("trocar o link derruba o anterior", async () => {
   assert.equal(novo.erro, undefined);
 });
 
-test("usuário comum não se promove a equipe Avant Cell", async () => {
-  await alterar("profiles", `id=eq.${usuario}`, { is_staff: false });
+test("ninguém muda os próprios poderes editando o perfil", async () => {
+  /* o ataque é direto: um PATCH em profiles. A política de RLS deixa cada um
+     mexer na própria linha, e linha não é coluna — por isso a proteção é
+     privilégio por coluna, e é isso que este teste vigia. */
+  const promover = await tentarAlterar("profiles", `id=eq.${usuario}`, { is_staff: true });
+  assert.equal(promover.ok, false, "virar equipe Avant Cell sozinho tem que ser recusado");
+  assert.equal(promover.status, 403);
 
-  /* pela função: tem que recusar */
-  const pelaFuncao = await chamar("staff_set", { p_user: usuario, p_flag: true });
-  assert.ok(pelaFuncao.erro, "promover a si mesmo sem ser da equipe tem que ser recusado");
+  const trocarEmpresa = await tentarAlterar("profiles", `id=eq.${usuario}`, { company_id: null });
+  assert.equal(trocarEmpresa.ok, false, "mudar de empresa sozinho tem que ser recusado");
 
-  /* pela API, editando o próprio perfil: é o caminho que estava aberto */
-  try {
-    await alterar("profiles", `id=eq.${usuario}`, { is_staff: true });
-    const depois = await um<{ is_staff: boolean }>(`profiles?id=eq.${usuario}&select=is_staff`);
-    assert.equal(depois.is_staff, false,
-      "editar o próprio perfil não pode conceder acesso ao negócio da Avant Cell");
-  } finally {
-    await alterar("profiles", `id=eq.${usuario}`, { is_staff: eraStaff });
-  }
+  const reativar = await tentarAlterar("profiles", `id=eq.${usuario}`, { active: true });
+  assert.equal(reativar.ok, false, "quem foi desligado não se reativa");
+
+  /* o que é da pessoa continua editável */
+  const nome = await tentarAlterar("profiles", `id=eq.${usuario}`, { full_name: "Conta de Teste" });
+  assert.equal(nome.ok, true, "nome próprio continua editável");
 });
 
-test("trocar de empresa pelo próprio perfil não pode", async () => {
-  const antes = await um<{ company_id: string }>(`profiles?id=eq.${usuario}&select=company_id`);
-  try {
-    await alterar("profiles", `id=eq.${usuario}`, { company_id: null });
-    const depois = await um<{ company_id: string }>(`profiles?id=eq.${usuario}&select=company_id`);
-    assert.equal(depois.company_id, antes.company_id, "ninguém muda de empresa sozinho");
-  } finally {
-    /* se a proteção ainda não estiver no banco, devolve o vínculo na marra:
-       teste de segurança não pode deixar a base quebrada atrás de si */
-    await alterar("profiles", `id=eq.${usuario}`, { company_id: antes.company_id });
-  }
-});
+

@@ -203,3 +203,21 @@ export async function itensDaVenda(vendaId: string) {
 export function centavos(valor: number) {
   return Math.round(valor * 100) / 100;
 }
+
+/** Consulta sem sessão nenhuma, só com a chave pública — é o que um curioso
+ *  com o endereço do projeto conseguiria fazer. */
+export async function comoAnonimo(consulta: string) {
+  const r = await fetch(`${URL_API}/rest/v1/${consulta}`, { headers: { apikey: CHAVE } });
+  return { status: r.status, corpo: await r.json().catch(() => null) };
+}
+
+/** PATCH cru: devolve o status em vez de estourar, porque metade dos testes de
+ *  segurança existe para conferir a recusa. */
+export async function tentarAlterar(tabela: string, filtro: string, dados: unknown) {
+  const r = await fetch(`${URL_API}/rest/v1/${tabela}?${filtro}`, {
+    method: "PATCH",
+    headers: await cabecalhos({ "Content-Type": "application/json" }),
+    body: JSON.stringify(dados),
+  });
+  return { ok: r.ok, status: r.status, corpo: await r.json().catch(() => null) };
+}
