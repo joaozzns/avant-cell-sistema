@@ -221,3 +221,21 @@ export async function tentarAlterar(tabela: string, filtro: string, dados: unkno
   });
   return { ok: r.ok, status: r.status, corpo: await r.json().catch(() => null) };
 }
+
+/** POST cru: a recusa é o resultado esperado em boa parte dos testes de
+ *  regra, então aqui o erro volta como valor em vez de estourar. Quando passa,
+ *  a linha criada já entra na lixeira. */
+export async function tentarInserir(tabela: string, dados: Record<string, unknown>) {
+  const r = await fetch(`${URL_API}/rest/v1/${tabela}`, {
+    method: "POST",
+    headers: await cabecalhos({ "Content-Type": "application/json", Prefer: "return=representation" }),
+    body: JSON.stringify(dados),
+  });
+  const corpo = await r.json().catch(() => null);
+  if (r.ok && Array.isArray(corpo) && corpo.length) {
+    const id = (corpo[0] as { id?: string }).id;
+    if (id) descartar(tabela, `id=eq.${id}`);
+    return { id, linha: corpo[0] as Record<string, unknown> };
+  }
+  return { erro: String((corpo as { message?: string } | null)?.message ?? r.status) };
+}

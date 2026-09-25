@@ -33,11 +33,11 @@ O script já passa `--test-concurrency=1` por isso.
 | Arquivo | Regras |
 |---|---|
 | `unidade.test.ts` | valor digitado em real, data pura sem fuso, "hoje" local, variável de mensagem, telefone de WhatsApp, rótulo de pagamento, prazo de laboratório e de reserva, dígito do IMEI |
-| `caixa.test.ts` | esperado do fechamento cego: suprimento, sangria, estorno e recebimento em espécie |
+| `caixa.test.ts` | esperado do fechamento cego (suprimento, sangria, estorno, recebimento em espécie) e o que não pode sair da gaveta: saída maior que o saldo, valor zero ou negativo, movimento em caixa fechado |
 | `devolucao.test.ts` | dinheiro que sai do caixa, devolver mais do que vendeu, crédito da loja virando dinheiro, produto avariado que não volta ao estoque |
 | `comissao.test.ts` | reapuração sem duplicar, estorno proporcional de venda devolvida, teto do estorno, estorno preservado na reapuração |
 | `taxa-cartao.test.ts` | taxa combinada gravada na venda, taxa por faixa de parcelas, conciliação acusando desconto a mais e não acusando falso positivo |
-| `crediario.test.ts` | limite aprovado por quem pode, venda acima do limite recusada com o saldo na mensagem, parcela paga devolvendo limite, parcela vencida e cliente bloqueado travando a venda |
+| `crediario.test.ts` | limite aprovado por quem pode, venda acima do limite recusada com o saldo na mensagem, parcela paga devolvendo limite, parcela vencida e cliente bloqueado travando a venda; baixa de parcela com juros ou desconto negativo, recebimento acima do saldo, e a baixa honesta entrando no caixa |
 | `representantes.test.ts` | representantes do Avant Cell: carteira só com loja pagando, comissão que não aparece antes de o modelo existir, percentual e valor fixo, lojista sem acesso ao negócio do dono, troca de link |
 | `vendedor.test.ts` | painel pelo link: link inválido não abre nada, vendas do mês, colega aparece só com o primeiro nome, vendedor comum não vê o número da loja, principal vê a loja e sai da comissão, trocar o link derruba o anterior |
 | `ajustes.test.ts` | ajuste de estoque (permissão, motivo escrito, saldo suficiente, documento com valor) e fechamento de caixa (valor contado negativo, contagem obrigatória) |
@@ -57,5 +57,10 @@ toda a camada ZZTESTE na ordem que o banco aceita.
 
 ## O que ainda não está coberto
 
+- **limites por perfil** (desconto em %, sangria em R$, alçada de pagamento):
+  as funções passaram a conferir `app.permission_limit`, mas a suíte roda com
+  um usuário administrador, e administrador passa por cima de toda permissão.
+  Provar o limite exige um segundo usuário com perfil restrito — hoje não dá,
+  porque só temos a chave pública no `.env.local`; daria pelo fluxo de convite;
 - transferência entre lojas (precisa de uma segunda loja na base);
-- crediário: juros e renegociação;
+- crediário: renegociação;

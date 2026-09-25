@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 
 import {
   alterar, apagar, buscar, caixaAberto, centavos, chamar, contexto, criarCliente,
-  criarProduto, limpar, marca, porEstoque, um, vender,
+  criarProduto, dinheiroEsperado, limpar, marca, porEstoque, um, vender,
 } from "./apoio.ts";
 
 let loja = "", sessao = "", produto = "", cliente = "";
@@ -124,4 +124,60 @@ test("mexer no limite fica na auditoria", async () => {
     `audit_logs?table_name=eq.customer_credit_profiles&record_id=eq.${cliente}&select=after,reason&order=created_at.desc&limit=1`);
   assert.equal(registros.length, 1);
   assert.equal(Number(registros[0].after.limite), 1000);
+});
+
+/* ---------------------------------------------------------------------------
+ * Baixar a parcela
+ *
+ * Até 25/09/2026 a baixa aceitava juros e desconto negativos, e dar desconto
+ * numa parcela — que é perdoar dívida — não pedia permissão nenhuma: qualquer
+ * usuário zerava o que um cliente devia declarando um desconto do tamanho da
+ * parcela.
+ * ------------------------------------------------------------------------- */
+
+async function parcelaAberta() {
+  return um<{ id: string; amount: number; interest: number; fine: number; discount: number }>(
+    `receivables?customer_id=eq.${cliente}&status=eq.open&select=id,amount,interest,fine,discount&order=due_date&limit=1`);
+}
+
+test("juros negativo na baixa é recusado", async () => {
+  const p = await parcelaAberta();
+  const r = await chamar("settle_receivable", {
+    p_id: p.id, p_amount: 10, p_interest: -100, p_discount: 0, p_account: null,
+  });
+  assert.match(String(r.erro), /juros/i);
+});
+
+test("desconto negativo na baixa é recusado", async () => {
+  const p = await parcelaAberta();
+  const r = await chamar("settle_receivable", {
+    p_id: p.id, p_amount: 10, p_interest: 0, p_discount: -50, p_account: null,
+  });
+  assert.match(String(r.erro), /desconto/i);
+});
+
+test("não se recebe mais do que a parcela deve", async () => {
+  const p = await parcelaAberta();
+  const r = await chamar("settle_receivable", {
+    p_id: p.id, p_amount: Number(p.amount) + 500, p_interest: 0, p_discount: 0, p_account: null,
+  });
+  assert.match(String(r.erro), /maior que o saldo/i);
+});
+
+test("baixa em dinheiro entra no caixa e quita a parcela", async () => {
+  const p = await parcelaAberta();
+  const antes = await dinheiroEsperado(sessao);
+
+  const r = await chamar("settle_receivable", {
+    p_id: p.id, p_amount: Number(p.amount), p_interest: 0, p_discount: 0, p_account: null,
+  });
+  assert.equal(r.erro, undefined);
+
+  assert.equal(centavos(await dinheiroEsperado(sessao)),
+    centavos(antes + Number(p.amount)), "o dinheiro da parcela entra na gaveta");
+
+  const depois = await um<{ status: string; paid_amount: number }>(
+    `receivables?id=eq.${p.id}&select=status,paid_amount`);
+  assert.equal(depois.status, "paid");
+  assert.equal(centavos(Number(depois.paid_amount)), centavos(Number(p.amount)));
 });
