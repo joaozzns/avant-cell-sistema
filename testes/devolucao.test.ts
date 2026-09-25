@@ -8,8 +8,8 @@ import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  buscar, caixaAberto, centavos, chamar, contexto, criarCliente, criarProduto,
-  dinheiroEsperado, itensDaVenda, limpar, marca, porEstoque, vender,
+  alterar, buscar, caixaAberto, centavos, chamar, contexto, criarCliente, criarProduto,
+  dinheiroEsperado, itensDaVenda, limpar, marca, porEstoque, um, vender,
 } from "./apoio.ts";
 
 let loja = "", sessao = "", produto = "", cliente = "";
@@ -115,4 +115,38 @@ test("produto devolvido volta para o estoque; avariado não volta", async () => 
     },
   });
   assert.equal(await saldo(), depoisDaVenda + 1, "avariado não volta para a prateleira");
+});
+
+test("não vende o que a loja não tem", async () => {
+  const poucos = await criarProduto(`${etiqueta} item escasso`, 100, 40);
+  await porEstoque(loja, poucos, 2);
+
+  const r = await chamar("complete_sale", {
+    p: {
+      store_id: loja, cash_session_id: sessao, discount: 0,
+      items: [{ product_id: poucos, qty: 5, unit_price: 100, discount: 0 }],
+      payments: [{ kind: "cash", amount: 500, installments: 1, change_given: 0 }],
+    },
+  });
+  assert.ok(r.erro, "vender 5 com 2 em estoque tem que ser recusado");
+  assert.match(String(r.erro), /estoque insuficiente/i);
+
+  const saldo = await um<{ qty: number }>(
+    `stock_items?store_id=eq.${loja}&product_id=eq.${poucos}&select=qty`);
+  assert.equal(centavos(Number(saldo.qty)), 2, "recusa não pode deixar estoque negativo");
+});
+
+test("o que está reservado para um cliente não é vendido a outro", async () => {
+  const produto2 = await criarProduto(`${etiqueta} item reservado`, 100, 40);
+  const linha = await porEstoque(loja, produto2, 3);
+  await alterar("stock_items", `id=eq.${linha}`, { reserved: 3 });
+
+  const r = await chamar("complete_sale", {
+    p: {
+      store_id: loja, cash_session_id: sessao, discount: 0,
+      items: [{ product_id: produto2, qty: 1, unit_price: 100, discount: 0 }],
+      payments: [{ kind: "cash", amount: 100, installments: 1, change_given: 0 }],
+    },
+  });
+  assert.ok(r.erro, "todas as unidades estão reservadas: não há o que vender");
 });
