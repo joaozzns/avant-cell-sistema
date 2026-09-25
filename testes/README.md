@@ -45,7 +45,7 @@ O script já passa `--test-concurrency=1` por isso.
 | `venda.test.ts` | os números da venda: quantidade negativa ou zero, preço negativo, pagamento negativo inflando a gaveta, troco fora do dinheiro, troco maior que o recebido, desconto negativo, e a venda honesta com troco entrando certo no caixa |
 | `compras.test.ts` | recebimento de pedido: entrada no estoque e conta a pagar, recusa de quantidade acima do pedido, quantidade negativa, frete negativo, recebimento vazio e pedido já fechado |
 | `inventario.test.ts` | inventário: foto do saldo, contagem negativa, item de outro inventário, recontagem que não reescreve a primeira, fechamento ajustando o saldo com documento |
-| `operacao.test.ts` | reserva sem cliente, sinal virando crédito e entrando no caixa, aparelho reservado duas vezes, retenção de sinal com motivo, laboratório externo (sem voltar etapa, conta lançada uma vez) e compra de usado com conferência de IMEI |
+| `operacao.test.ts` | reserva sem cliente, sinal virando crédito e entrando no caixa, aparelho reservado duas vezes, retenção de sinal com motivo, laboratório externo (sem voltar etapa, conta lançada uma vez), compra de usado com conferência de IMEI e peça da OS (não sai da prateleira o que não está lá; peça aplicada só volta por ajuste) |
 
 ## Limpeza
 

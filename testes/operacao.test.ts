@@ -6,8 +6,8 @@ import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  buscar, caixaAberto, centavos, chamar, contexto, criarCliente, descartar,
-  inserir, limpar, marca, um,
+  apagar, buscar, caixaAberto, centavos, chamar, contexto, criarCliente, criarProduto,
+  descartar, inserir, limpar, marca, porEstoque, um,
 } from "./apoio.ts";
 import { isoLocal } from "../src/lib/format.ts";
 
@@ -199,4 +199,82 @@ test("compra de aparelho usado exige conferência de IMEI e recusa bloqueado", a
   descartar("serialized_units", `id=eq.${livre.dados.unit_id}`);
   descartar("stock_movements", `unit_id=eq.${livre.dados.unit_id}`);
   descartar("cash_movements", `ref_id=eq.${livre.dados.trade_in_id}`);
+});
+
+/* ---------------- peça na bancada ---------------- */
+
+test("peça só sai da prateleira se ela estiver lá", async () => {
+  const numero = await chamar("next_store_number", { p_store: loja, p_kind: "service_order" });
+  const os = await inserir<{ id: string }>("service_orders", {
+    company_id: empresa, store_id: loja, number: numero.dados, customer_id: cliente,
+    reported_issue: `${etiqueta} troca de tela`, created_by: usuario, status: "open",
+  });
+  descartar("service_orders", `id=eq.${os.id}`);
+
+  const peca = await criarProduto(`${etiqueta} tela`, 300, 120);
+  await porEstoque(loja, peca, 1);
+
+  /* pedir 40 com 1 na prateleira: até 25/09/2026 o saldo ia para -39 e
+     R$ 4.800 de custo entravam na OS sem um aviso */
+  const pedida = await inserir<{ id: string }>("os_parts", {
+    os_id: os.id, product_id: peca, qty: 40, unit_cost: 120, status: "requested",
+  });
+  descartar("os_parts", `id=eq.${pedida.id}`);
+
+  const r = await chamar("os_apply_part", { p_part: pedida.id });
+  assert.ok(r.erro, "aplicar 40 peças com 1 em estoque tem que ser recusado");
+  assert.match(String(r.erro), /estoque insuficiente/i);
+
+  const saldo = await um<{ qty: number }>(
+    `stock_items?store_id=eq.${loja}&product_id=eq.${peca}&select=qty`);
+  assert.equal(centavos(Number(saldo.qty)), 1, "recusa não mexe no saldo");
+
+  const depois = await um<{ cost_parts: number }>(
+    `service_orders?id=eq.${os.id}&select=cost_parts`);
+  assert.equal(centavos(Number(depois.cost_parts)), 0, "recusa não lança custo na OS");
+
+  /* a quantidade que cabe passa, baixa o estoque e lança o custo */
+  const cabe = await inserir<{ id: string }>("os_parts", {
+    os_id: os.id, product_id: peca, qty: 1, unit_cost: 120, status: "requested",
+  });
+  descartar("os_parts", `id=eq.${cabe.id}`);
+
+  const ok = await chamar("os_apply_part", { p_part: cabe.id });
+  assert.equal(ok.erro, undefined);
+
+  const saldoFinal = await um<{ qty: number }>(
+    `stock_items?store_id=eq.${loja}&product_id=eq.${peca}&select=qty`);
+  assert.equal(centavos(Number(saldoFinal.qty)), 0);
+
+  const osFinal = await um<{ cost_parts: number }>(
+    `service_orders?id=eq.${os.id}&select=cost_parts`);
+  assert.equal(centavos(Number(osFinal.cost_parts)), 120);
+
+  await apagar("stock_movements", `product_id=eq.${peca}`);
+  await apagar("stock_items", `product_id=eq.${peca}`);
+});
+
+test("peça já aplicada não volta pelo caminho fácil", async () => {
+  const numero = await chamar("next_store_number", { p_store: loja, p_kind: "service_order" });
+  const os = await inserir<{ id: string }>("service_orders", {
+    company_id: empresa, store_id: loja, number: numero.dados, customer_id: cliente,
+    reported_issue: `${etiqueta} bateria`, created_by: usuario, status: "open",
+  });
+  descartar("service_orders", `id=eq.${os.id}`);
+
+  const peca = await criarProduto(`${etiqueta} bateria`, 150, 60);
+  await porEstoque(loja, peca, 3);
+  const parte = await inserir<{ id: string }>("os_parts", {
+    os_id: os.id, product_id: peca, qty: 1, unit_cost: 60, status: "requested",
+  });
+  descartar("os_parts", `id=eq.${parte.id}`);
+
+  assert.equal((await chamar("os_apply_part", { p_part: parte.id })).erro, undefined);
+
+  const volta = await chamar("os_return_part", { p_part: parte.id });
+  assert.match(String(volta.erro), /já aplicada/i,
+    "peça aplicada volta por ajuste de estoque, que deixa documento");
+
+  await apagar("stock_movements", `product_id=eq.${peca}`);
+  await apagar("stock_items", `product_id=eq.${peca}`);
 });
