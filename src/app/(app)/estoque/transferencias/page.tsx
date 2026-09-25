@@ -13,8 +13,15 @@ export const SITUACAO: Record<string, { rotulo: string; cor: "default" | "second
   canceled: { rotulo: "cancelada", cor: "destructive" },
 };
 
-export default async function TransferenciasPage() {
+export default async function TransferenciasPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ "sem-loja"?: string }>;
+}) {
   const { supabase, storeId } = await getSessionContext();
+  /* quem clica em "nova transferência" com uma loja só é mandado de volta para
+     cá; sem explicação, parece que o botão está quebrado */
+  const semLoja = Boolean((await searchParams)["sem-loja"]);
 
   const { data: lista } = await supabase
     .from("transfers")
@@ -26,7 +33,14 @@ export default async function TransferenciasPage() {
   const nome = (id: string) => lojas?.find((l) => l.id === id)?.name ?? "—";
 
   return (
-    <div className="grid gap-5">
+    <>
+      {semLoja && (
+        <p className="mb-4 rounded-lg border border-amber-500/40 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+          Transferência precisa de pelo menos duas lojas, e sua empresa tem só uma. Cadastre a
+          segunda unidade em Administração para poder mandar mercadoria de uma para a outra.
+        </p>
+      )}
+      <div className="grid gap-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Transferências entre lojas</h1>
@@ -67,5 +81,6 @@ export default async function TransferenciasPage() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }

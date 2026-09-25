@@ -35,6 +35,7 @@ Credenciais: `AVC_TESTE_EMAIL` e `AVC_TESTE_SENHA` no `.env.local`
 | `crediario.test.ts` | limite aprovado por quem pode, venda acima do limite recusada com o saldo na mensagem, parcela paga devolvendo limite, parcela vencida e cliente bloqueado travando a venda |
 | `representantes.test.ts` | representantes do Avant Cell: carteira só com loja pagando, comissão que não aparece antes de o modelo existir, percentual e valor fixo, lojista sem acesso ao negócio do dono, troca de link |
 | `vendedor.test.ts` | painel pelo link: link inválido não abre nada, vendas do mês, colega aparece só com o primeiro nome, vendedor comum não vê o número da loja, principal vê a loja e sai da comissão, trocar o link derruba o anterior |
+| `ajustes.test.ts` | ajuste de estoque (permissão, motivo escrito, saldo suficiente, documento com valor) e fechamento de caixa (valor contado negativo, contagem obrigatória) |
 | `alertas.test.ts` | central de alertas: cria, não duplica, resolve sozinha quando o problema acaba, respeita o adiamento |
 | `operacao.test.ts` | reserva sem cliente, sinal virando crédito e entrando no caixa, aparelho reservado duas vezes, retenção de sinal com motivo, laboratório externo (sem voltar etapa, conta lançada uma vez) e compra de usado com conferência de IMEI |
 
