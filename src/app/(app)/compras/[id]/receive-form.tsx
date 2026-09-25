@@ -28,6 +28,11 @@ export function ReceiveForm({ poId, items }: { poId: string; items: PoItem[] }) 
     Object.fromEntries(items.map((i) => [i.id, String(i.unit_cost)]))
   );
 
+  const restante = (i: PoItem) => Number(i.qty) - Number(i.qty_received);
+  const digitado = (i: PoItem) => Number(received[i.id]?.replace(",", ".")) || 0;
+  const excedidos = items.filter((i) => digitado(i) > restante(i));
+  const totalRecebendo = items.reduce((s, i) => s + digitado(i), 0);
+
   function submit() {
     setError("");
     startTransition(async () => {
@@ -77,6 +82,7 @@ export function ReceiveForm({ poId, items }: { poId: string; items: PoItem[] }) 
           <thead className="border-b text-left text-muted-foreground">
             <tr><th className="py-1">Item</th><th className="py-1 text-center">Pedido</th>
                 <th className="py-1 text-center">Já recebido</th>
+                <th className="py-1 text-center">Faltam</th>
                 <th className="py-1 text-center">Recebendo</th>
                 <th className="py-1 text-right">Custo un.</th></tr>
           </thead>
@@ -86,10 +92,13 @@ export function ReceiveForm({ poId, items }: { poId: string; items: PoItem[] }) 
                 <td className="py-1.5">{i.products?.name}</td>
                 <td className="py-1.5 text-center text-muted-foreground">{Number(i.qty)}</td>
                 <td className="py-1.5 text-center text-muted-foreground">{Number(i.qty_received)}</td>
+                <td className="py-1.5 text-center text-muted-foreground">{restante(i)}</td>
                 <td className="py-1.5 text-center">
                   <input inputMode="decimal" value={received[i.id]}
                     onChange={(e) => setReceived((p) => ({ ...p, [i.id]: e.target.value }))}
-                    className="w-20 rounded border bg-transparent px-1 py-0.5 text-center" />
+                    className={`w-20 rounded border bg-transparent px-1 py-0.5 text-center ${
+                      digitado(i) > restante(i) ? "border-destructive text-destructive" : ""
+                    }`} />
                 </td>
                 <td className="py-1.5 text-right">
                   <input inputMode="decimal" value={costs[i.id]}
@@ -100,8 +109,15 @@ export function ReceiveForm({ poId, items }: { poId: string; items: PoItem[] }) 
             ))}
           </tbody>
         </table>
+        {excedidos.length > 0 && (
+          <p className="text-sm text-destructive">
+            Você está recebendo mais do que foi pedido em{" "}
+            {excedidos.map((i) => i.products?.name).join(", ")}. Ajuste a quantidade ou
+            registre o excedente em um novo pedido de compra.
+          </p>
+        )}
         {error && <p className="text-sm text-destructive">{error}</p>}
-        <Button onClick={submit} disabled={pending}>
+        <Button onClick={submit} disabled={pending || excedidos.length > 0 || totalRecebendo <= 0}>
           {pending ? "Processando…" : "Confirmar recebimento"}
         </Button>
         <p className="text-xs text-muted-foreground">

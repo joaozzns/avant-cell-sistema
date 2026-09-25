@@ -46,6 +46,10 @@ export function Contagem({
       .filter(([, v]) => v !== "")
       .map(([item_id, v]) => ({ item_id, qty: Number(v.replace(",", ".")) || 0 }));
     if (!lista.length) { setErro("Digite ao menos uma contagem."); return; }
+    if (lista.some((i) => i.qty < 0)) {
+      setErro("A quantidade contada não pode ser negativa. Se não encontrou o produto, digite 0.");
+      return;
+    }
     iniciar(async () => {
       const r = await salvarContagem(id, lista);
       if (r.error) { setErro(r.error); return; }

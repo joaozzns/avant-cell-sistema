@@ -16,12 +16,17 @@ verdade e falam pelo PostgREST, igual ao aplicativo.
 
 `npm run test:regras` **escreve no banco apontado por `.env.local`**. Rode contra
 um projeto de teste, nunca contra a base de uma loja em operação. Cada teste
-cria o que precisa (nomes começando em `ZZTESTE-`) e apaga no fim; o que a
-política de segurança não deixa apagar — crédito de loja, por exemplo — fica lá,
-então a base de teste acumula sujeira com o tempo.
+cria o que precisa (nomes começando em `ZZTESTE-`) e apaga no fim; o que já
+virou documento — venda, movimento de estoque, comissão — o banco não deixa sair
+por DELETE, então a base acumula sujeira com o tempo (veja **Limpeza**).
 
 Credenciais: `AVC_TESTE_EMAIL` e `AVC_TESTE_SENHA` no `.env.local`
 (padrão: `teste@avantcell.com.br`).
+
+Rode sempre pelo `npm run test:regras`, nunca por `node --test testes/*.test.ts`
+direto: os arquivos dividem o mesmo caixa e a mesma loja, então em paralelo um
+teste vê o dinheiro que o outro acabou de mexer e falha sem ter defeito nenhum.
+O script já passa `--test-concurrency=1` por isso.
 
 ## O que está coberto
 
@@ -37,7 +42,17 @@ Credenciais: `AVC_TESTE_EMAIL` e `AVC_TESTE_SENHA` no `.env.local`
 | `vendedor.test.ts` | painel pelo link: link inválido não abre nada, vendas do mês, colega aparece só com o primeiro nome, vendedor comum não vê o número da loja, principal vê a loja e sai da comissão, trocar o link derruba o anterior |
 | `ajustes.test.ts` | ajuste de estoque (permissão, motivo escrito, saldo suficiente, documento com valor) e fechamento de caixa (valor contado negativo, contagem obrigatória) |
 | `alertas.test.ts` | central de alertas: cria, não duplica, resolve sozinha quando o problema acaba, respeita o adiamento |
+| `compras.test.ts` | recebimento de pedido: entrada no estoque e conta a pagar, recusa de quantidade acima do pedido, quantidade negativa, frete negativo, recebimento vazio e pedido já fechado |
+| `inventario.test.ts` | inventário: foto do saldo, contagem negativa, item de outro inventário, recontagem que não reescreve a primeira, fechamento ajustando o saldo com documento |
 | `operacao.test.ts` | reserva sem cliente, sinal virando crédito e entrando no caixa, aparelho reservado duas vezes, retenção de sinal com motivo, laboratório externo (sem voltar etapa, conta lançada uma vez) e compra de usado com conferência de IMEI |
+
+## Limpeza
+
+Os testes apagam o que criam, mas o que já virou documento (venda, movimento
+de estoque, comissão) o banco não deixa sair por DELETE — e esse volume se
+acumula no painel do dia e no faturamento. De tempos em tempos, rode
+`supabase/scripts/limpeza_testes_automatizados.sql` no SQL Editor: ele tira
+toda a camada ZZTESTE na ordem que o banco aceita.
 
 ## O que ainda não está coberto
 
