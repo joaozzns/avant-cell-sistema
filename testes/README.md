@@ -42,6 +42,7 @@ O script já passa `--test-concurrency=1` por isso.
 | `vendedor.test.ts` | painel pelo link: link inválido não abre nada, vendas do mês, colega aparece só com o primeiro nome, vendedor comum não vê o número da loja, principal vê a loja e sai da comissão, trocar o link derruba o anterior |
 | `ajustes.test.ts` | ajuste de estoque (permissão, motivo escrito, saldo suficiente, documento com valor) e fechamento de caixa (valor contado negativo, contagem obrigatória) |
 | `alertas.test.ts` | central de alertas: cria, não duplica, resolve sozinha quando o problema acaba, respeita o adiamento |
+| `venda.test.ts` | os números da venda: quantidade negativa ou zero, preço negativo, pagamento negativo inflando a gaveta, troco fora do dinheiro, troco maior que o recebido, desconto negativo, e a venda honesta com troco entrando certo no caixa |
 | `compras.test.ts` | recebimento de pedido: entrada no estoque e conta a pagar, recusa de quantidade acima do pedido, quantidade negativa, frete negativo, recebimento vazio e pedido já fechado |
 | `inventario.test.ts` | inventário: foto do saldo, contagem negativa, item de outro inventário, recontagem que não reescreve a primeira, fechamento ajustando o saldo com documento |
 | `operacao.test.ts` | reserva sem cliente, sinal virando crédito e entrando no caixa, aparelho reservado duas vezes, retenção de sinal com motivo, laboratório externo (sem voltar etapa, conta lançada uma vez) e compra de usado com conferência de IMEI |
