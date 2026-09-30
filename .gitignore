@@ -45,3 +45,6 @@ scripts/dados-demo-ids.json
 
 # registros do start.command
 .logs/
+
+# links de assinatura gerados pelo script do Mercado Pago
+planos-mercadopago-*.json
