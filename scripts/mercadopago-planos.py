@@ -9,6 +9,11 @@ O token NUNCA fica no arquivo. Ele vem do ambiente:
     export MP_ACCESS_TOKEN="APP_USR-..."    # producao
     python3 scripts/mercadopago-planos.py --producao
 
+Nem toda conta do Mercado Pago oferece credenciais de teste. Sem elas, o jeito
+de exercitar o ciclo sem arriscar um cliente e criar so o plano de R$ 1:
+
+    python3 scripts/mercadopago-planos.py --teste-barato
+
 Os planos criados com o token de teste NAO existem em producao: na virada,
 rode de novo com o token de producao e troque os links no site. Por isso isto
 e um script e nao um punhado de cliques no painel.
@@ -36,6 +41,13 @@ ANUAL = os.environ.get("MP_ANUAL", "uma_vez")
 MENSAIS = [("Essencial", 97), ("Profissional", 127), ("Premium", 197)]
 ANUAIS  = [("Essencial", 75), ("Profissional", 97), ("Premium", 149)]
 
+# Plano de R$ 1 para exercitar o ciclo inteiro -- assinar, o webhook chegar, o
+# acesso liberar, o pagamento falhar, o acesso bloquear -- com cartao de
+# verdade e sem perder dinheiro. Existe porque nem toda conta do Mercado Pago
+# oferece credenciais de teste; quando nao ha ambiente de teste, o jeito de
+# nao testar em cima de um cliente pagante e testar em cima de R$ 1.
+TESTE_BARATO = ("Teste de integracao (nao vender)", 1)
+
 
 def plano(nome, periodo, valor, frequencia, tipo, repeticoes=None):
     corpo = {
@@ -58,7 +70,10 @@ def plano(nome, periodo, valor, frequencia, tipo, repeticoes=None):
     return corpo
 
 
-def montar():
+def montar(so_teste=False):
+    if so_teste:
+        n, v = TESTE_BARATO
+        return [plano(n, "mensal", v, 1, "months")]
     planos = [plano(n, "mensal", v, 1, "months") for n, v in MENSAIS]
     for n, v in ANUAIS:
         if ANUAL == "uma_vez":
@@ -89,19 +104,22 @@ def main():
         sys.exit("Defina MP_ACCESS_TOKEN no ambiente (nao no arquivo).")
 
     producao = "--producao" in sys.argv
+    so_teste = "--teste-barato" in sys.argv
     parece_teste = token.startswith("TEST-")
     if producao and parece_teste:
         sys.exit("--producao com um token TEST-: isso criaria planos de mentira.")
-    if not producao and not parece_teste:
-        sys.exit("Token de producao sem --producao. Repita com --producao se e isso "
-                 "mesmo: os links gerados vao cobrar dinheiro de verdade.")
+    if not producao and not parece_teste and not so_teste:
+        sys.exit("Token sem o prefixo TEST-. Se for mesmo o de producao, repita com "
+                 "--producao: os links gerados vao cobrar dinheiro de verdade.\n"
+                 "Para so criar o plano de R$ 1 e exercitar o ciclo, use "
+                 "--teste-barato.")
 
-    print(f"ambiente: {'PRODUCAO' if producao else 'teste'}")
+    print(f"ambiente: {'PRODUCAO' if producao or not parece_teste else 'teste'}")
     print(f"plano anual: {ANUAL} · teste gratis: {TESTE_GRATIS_DIAS or 'nenhum'} dia(s)")
     print(f"retorno: {RETORNO}\n")
 
     resultados = []
-    for corpo in montar():
+    for corpo in montar(so_teste):
         dados, erro = criar(corpo, token)
         nome = corpo["reason"]
         if erro:
@@ -115,7 +133,8 @@ def main():
                            "link": dados.get("init_point")})
 
     if resultados:
-        saida = f"planos-mercadopago-{'producao' if producao else 'teste'}.json"
+        rotulo = "teste-barato" if so_teste else ("producao" if producao else "teste")
+        saida = f"planos-mercadopago-{rotulo}.json"
         with open(saida, "w") as f:
             json.dump(resultados, f, indent=2, ensure_ascii=False)
         print(f"\n{len(resultados)} plano(s). Links salvos em {saida}")
