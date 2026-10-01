@@ -31,7 +31,9 @@ export default async function AssinaturaPage() {
       .select("id, name, monthly_price, annual_price, mp_plan_id_monthly, mp_plan_id_annual")
       .eq("active", true)
       .order("sort_order"),
-    supabase.rpc("assinatura", { p_company: companyId }).single(),
+    /* sem parâmetro de propósito: responde sobre a empresa de quem
+       pergunta, e não sobre uma que se peça pelo id */
+    supabase.rpc("minha_assinatura"),
     supabase
       .from("subscriptions")
       .select("plan_id, status, charge_period, current_period_end, grace_until, charged_amount")
