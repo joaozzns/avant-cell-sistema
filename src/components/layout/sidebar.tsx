@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, ShoppingCart, Package, Wrench, Users, Wallet,
-  FileText, BarChart3, Settings, Globe, ChevronRight, Search, Moon, Sun, Upload, TriangleAlert, Handshake,
+  FileText, BarChart3, Settings, Globe, ChevronRight, Search, Moon, Sun, Upload, TriangleAlert, Handshake, Receipt,
 } from "lucide-react";
 
 type Item = { href: string; label: string };
@@ -103,7 +103,12 @@ const MODULOS: Modulo[] = [
   { href: "/importar", label: "Importar dados", icon: Upload },
   { href: "/portal", label: "Portal do cliente", icon: Globe },
   { href: "/parceiros", label: "Representantes Avant Cell", icon: Handshake },
+  { href: "/cobranca", label: "Cobrança", icon: Receipt },
 ];
+
+/* As duas últimas são da equipe Avant Cell, não da loja: quem não é equipe
+   nem vê a rota no menu. */
+const SO_EQUIPE = ["/parceiros", "/cobranca"];
 
 function ativo(pathname: string, href: string) {
   return href === "/dashboard"
@@ -159,7 +164,7 @@ export function Sidebar({
   }
 
   const permitidos = MODULOS.filter(
-    (m) => equipeAvantCell || m.href !== "/parceiros");
+    (m) => equipeAvantCell || !SO_EQUIPE.includes(m.href));
 
   const termo = busca.trim().toLowerCase();
   const visiveis = termo
