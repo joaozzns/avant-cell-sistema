@@ -112,6 +112,38 @@ export async function POST(req: Request) {
   try {
     if (assunto === "subscription_preapproval" && recurso) {
       const a = await perguntarAoMercadoPago(`/preapproval/${recurso}`);
+
+      /* Primeiro aviso de uma assinatura nova: nenhuma linha tem este
+         preapproval ainda. O elo é a referência externa, que o link de
+         assinatura carrega com o id da empresa — sem ela o pagamento entra
+         na conta e o sistema não sabe de quem é. */
+      const empresa = String(a.external_reference ?? "").trim();
+      if (empresa) {
+        const { data: jaTem } = await supabase
+          .from("subscriptions")
+          .select("id")
+          .eq("mp_preapproval_id", recurso)
+          .maybeSingle();
+
+        if (!jaTem) {
+          /* o plano assinado diz qual dos nossos planos é */
+          const planoMp = String(a.preapproval_plan_id ?? "");
+          const { data: plano } = await supabase
+            .from("saas_plans")
+            .select("id, mp_plan_id_monthly, mp_plan_id_annual")
+            .or(`mp_plan_id_monthly.eq.${planoMp},mp_plan_id_annual.eq.${planoMp}`)
+            .maybeSingle();
+
+          await supabase
+            .from("subscriptions")
+            .update({
+              mp_preapproval_id: recurso,
+              plan_id: plano?.id ?? null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("company_id", empresa);
+        }
+      }
       const novo = situacao(String(a.status ?? ""));
       const vence = a.next_payment_date ? String(a.next_payment_date).slice(0, 10) : null;
 
