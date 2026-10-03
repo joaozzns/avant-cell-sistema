@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getSessionContext } from "@/lib/context";
 import { brl, isoLocal } from "@/lib/format";
 import { Atalho, Indicador } from "@/components/painel";
@@ -9,9 +10,21 @@ import {
   Settings, ArrowRight,
 } from "lucide-react";
 import { destinoDoAlerta } from "@/lib/alertas";
+import { resolver } from "@/lib/atalhos";
+
+/* O catálogo guarda o nome do ícone, não o componente: ele é lido no servidor
+   e no cliente, e passar função de um para o outro não dá. */
+const ICONES: Record<string, React.ComponentType<{ className?: string }>> = {
+  ShoppingCart, Users, Package, Wrench, Wallet, FileText, Boxes,
+  CalendarClock, BellRing, CircleDollarSign,
+};
 
 export default async function DashboardPage() {
-  const { supabase, storeId, storeName } = await getSessionContext();
+  const { supabase, storeId, storeName, userId, equipeAvantCell } =
+    await getSessionContext();
+
+  /* a tela inicial é da loja; o dono do Avant Cell entra no faturamento */
+  if (equipeAvantCell) redirect("/cobranca");
 
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
@@ -28,6 +41,7 @@ export default async function DashboardPage() {
     { count: osAtrasadas },
     { data: aniversariantes },
     { data: alertas },
+    { data: escolha },
   ] = await Promise.all([
     supabase
       .from("sales").select("total")
@@ -62,8 +76,13 @@ export default async function DashboardPage() {
       .eq("status", "open")
       .order("severity")
       .limit(6),
-
+    supabase
+      .from("user_shortcuts").select("items")
+      .eq("user_id", userId).maybeSingle(),
   ]);
+
+  /* o que esta pessoa escolheu em /atalhos; sem escolha, o conjunto padrão */
+  const meusAtalhos = resolver(escolha?.items as string[] | undefined);
 
   const faturamento = (vendasHoje ?? []).reduce((s, v) => s + Number(v.total), 0);
   const receber = (aReceber ?? []).reduce(
@@ -90,7 +109,7 @@ export default async function DashboardPage() {
               <CardTitle className="text-base">Atalhos</CardTitle>
               <CardAction>
                 <Link
-                  href="/admin"
+                  href="/atalhos"
                   className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary"
                 >
                   <Settings className="h-3.5 w-3.5" />
@@ -99,11 +118,16 @@ export default async function DashboardPage() {
               </CardAction>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2 pt-5">
-              <Atalho href="/pdv" tom="primario" icone={ShoppingCart}>Nova venda</Atalho>
-              <Atalho href="/clientes" icone={Users}>Clientes</Atalho>
-              <Atalho href="/estoque" icone={Package}>Estoque</Atalho>
-              <Atalho href="/os/nova" icone={Wrench}>Ordem de serviço</Atalho>
-              <Atalho href="/pdv/caixa" icone={CircleDollarSign}>Abrir / fechar caixa</Atalho>
+              {meusAtalhos.map((a, i) => (
+                <Atalho
+                  key={a.id}
+                  href={a.href}
+                  icone={ICONES[a.icone]}
+                  tom={i === 0 ? "primario" : "neutro"}
+                >
+                  {a.rotulo}
+                </Atalho>
+              ))}
               {fazemAniversario > 0 && (
                 <Atalho href="/clientes" tom="aviso" icone={Cake}>
                   {fazemAniversario} aniversariante(s) hoje
@@ -119,11 +143,6 @@ export default async function DashboardPage() {
                   {osAtrasadas} OS com prazo vencido
                 </Atalho>
               )}
-              <Atalho href="/estoque/aparelhos" icone={Boxes}>Entrada de aparelho</Atalho>
-              <Atalho href="/compras" icone={Package}>Compras</Atalho>
-              <Atalho href="/financeiro" icone={Wallet}>Financeiro</Atalho>
-              <Atalho href="/fiscal" icone={FileText}>Fiscal</Atalho>
-              <Atalho href="/pdv/vendas" icone={ShoppingCart}>Vendas — PDV</Atalho>
             </CardContent>
           </Card>
 
