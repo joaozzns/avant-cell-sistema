@@ -36,7 +36,7 @@ const MODULOS: Modulo[] = [
     href: "/estoque", label: "Compras / Estoque", icon: Package,
     itens: [
       { href: "/estoque", label: "Catálogo" },
-      { href: "/estoque/aparelhos", label: "Aparelhos (IMEI)" },
+      { href: "/estoque/aparelhos", label: "Aparelhos" },
       { href: "/estoque/usado", label: "Usado na troca" },
       { href: "/estoque/categorias", label: "Categorias" },
       { href: "/estoque/transferencias", label: "Transferências" },
@@ -102,13 +102,28 @@ const MODULOS: Modulo[] = [
   },
   { href: "/importar", label: "Importar dados", icon: Upload },
   { href: "/portal", label: "Portal do cliente", icon: Globe },
-  { href: "/parceiros", label: "Representantes Avant Cell", icon: Handshake },
-  { href: "/cobranca", label: "Cobrança", icon: Receipt },
 ];
 
-/* As duas últimas são da equipe Avant Cell, não da loja: quem não é equipe
-   nem vê a rota no menu. */
-const SO_EQUIPE = ["/parceiros", "/cobranca"];
+/* O dono do Avant Cell não opera loja: o login dele administra representante,
+   assinatura e faturamento. Antes ele via os dois menus da equipe no fim de
+   uma árvore com PDV, estoque, OS e fiscal — tudo que é da loja do cliente,
+   nada que é do negócio dele. Agora a equipe tem a sua própria árvore. */
+const MODULOS_EQUIPE: Modulo[] = [
+  {
+    href: "/cobranca", label: "Faturamento", icon: Receipt,
+    itens: [
+      { href: "/cobranca", label: "Assinaturas e MRR" },
+      { href: "/cobranca#comissoes", label: "Comissão a repassar" },
+    ],
+  },
+  {
+    href: "/parceiros", label: "Representantes", icon: Handshake,
+    itens: [
+      { href: "/parceiros", label: "Vendedores e links" },
+      { href: "/parceiros#lojas", label: "Lojas por vendedor" },
+    ],
+  },
+];
 
 function ativo(pathname: string, href: string) {
   return href === "/dashboard"
@@ -163,8 +178,7 @@ export function Sidebar({
     }
   }
 
-  const permitidos = MODULOS.filter(
-    (m) => equipeAvantCell || !SO_EQUIPE.includes(m.href));
+  const permitidos = equipeAvantCell ? MODULOS_EQUIPE : MODULOS;
 
   const termo = busca.trim().toLowerCase();
   const visiveis = termo

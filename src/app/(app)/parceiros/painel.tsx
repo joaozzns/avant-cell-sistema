@@ -260,7 +260,7 @@ export function PainelParceiros({
       </Card>
 
       {/* ---------- lojas e assinaturas ---------- */}
-      <Card>
+      <Card id="lojas" className="scroll-mt-24">
         <CardHeader className="border-b py-4">
           <CardTitle className="text-base">Lojas no sistema ({lojas.length})</CardTitle>
           <p className="text-xs text-muted-foreground">

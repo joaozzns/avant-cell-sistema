@@ -47,7 +47,7 @@ export default async function ProductsPage({
             Categorias e marcas
           </Link>
           <Link href="/estoque/aparelhos" className={buttonVariants({ variant: "outline" })}>
-            Aparelhos (IMEI)
+            Aparelhos
           </Link>
           <Link href="/estoque/movimentacoes" className={buttonVariants({ variant: "outline" })}>
             Movimentações

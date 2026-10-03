@@ -141,7 +141,7 @@ export function PainelCobranca({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card id="comissoes" className="scroll-mt-24">
         <CardHeader><CardTitle className="text-base">Comissões</CardTitle></CardHeader>
         <CardContent className="overflow-x-auto">
           {comissoes.length === 0 ? (
