@@ -1,7 +1,8 @@
 "use client";
 
-import { Menu, CircleHelp, LogOut, Store } from "lucide-react";
+import { Menu, LogOut, Store } from "lucide-react";
 import { SeletorLoja } from "./seletor-loja";
+import { BotaoAjuda } from "./botao-ajuda";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/(auth)/actions";
 
@@ -44,15 +45,7 @@ export function Header({
           </div>
         )}
 
-        <a
-          href="https://avantcell.com.br/contato/"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Ajuda"
-          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-        >
-          <CircleHelp className="h-5 w-5" />
-        </a>
+        <BotaoAjuda />
 
         <div className="hidden text-right leading-tight md:block">
           <p className="text-sm font-medium">{userName}</p>

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, ShoppingCart, Package, Wrench, Users, Wallet,
-  FileText, BarChart3, Settings, Globe, ChevronRight, Search, Moon, Sun, Upload, TriangleAlert, Handshake, Receipt,
+  FileText, BarChart3, Settings, Globe, ChevronRight, Search, Moon, Sun, Upload, TriangleAlert, Handshake, Receipt, CircleHelp,
 } from "lucide-react";
 
 type Item = { href: string; label: string };
@@ -102,6 +102,7 @@ const MODULOS: Modulo[] = [
   },
   { href: "/importar", label: "Importar dados", icon: Upload },
   { href: "/portal", label: "Portal do cliente", icon: Globe },
+  { href: "/ajuda", label: "Como usar o sistema", icon: CircleHelp },
 ];
 
 /* O dono do Avant Cell não opera loja: o login dele administra representante,
