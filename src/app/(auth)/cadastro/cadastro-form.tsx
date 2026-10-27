@@ -11,7 +11,7 @@ import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
 } from "@/components/ui/card";
 
-export function SignupForm({ convite, indicacao }: { convite?: string; indicacao?: string }) {
+export function SignupForm({ convite, indicacao, plano }: { convite?: string; indicacao?: string; plano?: string }) {
   const [state, formAction, pending] = useActionState<{ error?: string }, FormData>(signup, {});
 
   return (
@@ -26,6 +26,7 @@ export function SignupForm({ convite, indicacao }: { convite?: string; indicacao
         <form action={formAction} className="grid gap-4">
           {convite && <input type="hidden" name="convite" value={convite} />}
           {indicacao && <input type="hidden" name="indicacao" value={indicacao} />}
+          {plano && <input type="hidden" name="plano" value={plano} />}
           <div className="grid gap-2">
             <Label htmlFor="full_name">Nome completo</Label>
             <Input id="full_name" name="full_name" required />
@@ -38,7 +39,8 @@ export function SignupForm({ convite, indicacao }: { convite?: string; indicacao
             <Label htmlFor="password">Senha</Label>
             <CampoSenha id="password" name="password" required minLength={8} autoComplete="new-password" />
             <p className="text-xs text-muted-foreground">
-              Mínimo 8 caracteres, com letra e número
+              Mínimo 8 caracteres, com minúscula, MAIÚSCULA, número e símbolo
+              <span className="mt-0.5 block">Ex.: Minhaloja2026!</span>
             </p>
           </div>
           {state?.error && (

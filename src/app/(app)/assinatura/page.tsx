@@ -8,6 +8,7 @@ export const metadata = { title: "Assinatura" };
 type Plano = {
   id: string;
   name: string;
+  slug: string;
   monthly_price: number;
   annual_price: number | null;
   mp_plan_id_monthly: string | null;
@@ -22,13 +23,20 @@ function linkDoPlano(planoMp: string, empresa: string) {
   return `${CHECKOUT}?preapproval_plan_id=${planoMp}&external_reference=${empresa}`;
 }
 
-export default async function AssinaturaPage() {
+export default async function AssinaturaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ plano?: string }>;
+}) {
   const { supabase, companyId } = await getSessionContext();
+  /* ?plano= vem do botão que a pessoa clicou na página de planos do site e
+     atravessou o cadastro: aqui ele vira o cartão em destaque */
+  const { plano: escolhido } = await searchParams;
 
   const [{ data: planos }, { data: situacao }, { data: atual }] = await Promise.all([
     supabase
       .from("saas_plans")
-      .select("id, name, monthly_price, annual_price, mp_plan_id_monthly, mp_plan_id_annual")
+      .select("id, name, slug, monthly_price, annual_price, mp_plan_id_monthly, mp_plan_id_annual")
       .eq("active", true)
       .order("sort_order"),
     /* sem parâmetro de propósito: responde sobre a empresa de quem
@@ -89,10 +97,19 @@ export default async function AssinaturaPage() {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-3">
-        {lista.map((p) => (
-          <Card key={p.id}>
+        {lista.map((p) => {
+          const emDestaque = escolhido != null && p.slug === escolhido;
+          return (
+          <Card key={p.id} className={emDestaque ? "border-primary ring-1 ring-primary" : undefined}>
             <CardHeader>
-              <CardTitle className="text-base">{p.name}</CardTitle>
+              <CardTitle className="text-base">
+                {p.name}
+                {emDestaque && (
+                  <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                    o que você escolheu
+                  </span>
+                )}
+              </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3 text-sm">
               <div>
@@ -129,7 +146,8 @@ export default async function AssinaturaPage() {
               )}
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       <p className="text-xs text-muted-foreground">
