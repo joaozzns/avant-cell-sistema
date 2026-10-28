@@ -51,7 +51,7 @@ export function SignupForm({ convite, indicacao, plano }: { convite?: string; in
             <Label htmlFor="password">Senha</Label>
             <CampoSenha id="password" name="password" required minLength={10} autoComplete="new-password" />
             <p className="text-xs text-muted-foreground">
-              Mínimo 10 caracteres, com letra, número e caractere especial
+              Mínimo 10 caracteres, com letra maiúscula, minúscula, número e caractere especial
               <span className="mt-0.5 block">Ex.: Minhaloja2026!</span>
             </p>
           </div>
