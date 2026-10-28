@@ -1,36 +1,40 @@
 import Image from "next/image";
 
+/* As telas de entrar, criar conta e recuperar senha usam o mesmo visual da
+ * página /entrar do site: fundo azul-marinho, as ondas azuis ao fundo e um
+ * cartão de vidro no meio. Antes era um cartão branco num fundo cinza — quem
+ * vinha do site sentia que tinha trocado de produto no meio do caminho.
+ *
+ * As ondas são o mesmo desenho do site, guardado como arquivo em vez de
+ * embutido: são 100 KB de SVG (26 KB comprimido) que o navegador baixa uma
+ * vez e reaproveita nas três telas. Embutir custaria isso em cada página.
+ * Entram por background-image, e não por <Image>: o otimizador do Next
+ * recusa SVG e devolvia 400, deixando o fundo sem as ondas.
+ *
+ * O cartão é arredondado, não um círculo perfeito como no site. O círculo
+ * funciona lá porque o formulário tem dois campos; o de criar conta tem
+ * cinco e vazaria para fora da curva. */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh grid place-items-center bg-muted/40 px-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 flex flex-col items-center text-center">
-          {/* A marca entra como imagem, não como texto. Duas versões: o
-              contorno escuro some no tema escuro e a branca entra no lugar,
-              trocadas por CSS para não piscar na carga. O h1 continua aqui,
-              com o nome no alt, para quem usa leitor de tela e para o
-              buscador — a página não pode perder o título por virar figura. */}
-          <h1 className="sr-only">Avant Cell</h1>
-          <Image
-            src="/logo-escura.svg"
-            alt="Avant Cell"
-            width={199}
-            height={48}
-            priority
-            className="h-11 w-auto dark:hidden"
-          />
-          <Image
-            src="/logo-branca.svg"
-            alt="Avant Cell"
-            width={199}
-            height={48}
-            priority
-            className="hidden h-11 w-auto dark:block"
-          />
-          <p className="mt-2 text-sm text-muted-foreground">
-            Loja e assistência técnica de celulares
-          </p>
-        </div>
+    <div className="area-entrada">
+      <a href="https://avantcell.com.br" className="voltar-ao-site">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        Voltar ao site
+      </a>
+
+      <div className="cartao-entrada">
+        <h1 className="sr-only">Avant Cell</h1>
+        <Image
+          src="/logo-branca.svg"
+          alt="Avant Cell"
+          width={199}
+          height={48}
+          priority
+          className="marca-entrada"
+        />
         {children}
       </div>
     </div>

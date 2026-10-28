@@ -136,3 +136,143 @@
     @apply font-sans;
   }
 }
+/* ===================================================================
+   Telas de entrada: entrar, criar conta e recuperar senha
+   -------------------------------------------------------------------
+   Mesmo visual da página /entrar do site — azul-marinho, as ondas ao
+   fundo e um cartão de vidro. As três telas são servidas pelo layout
+   de (auth); as regras abaixo vestem os componentes que as páginas já
+   usam (Card, Input, Label, Button), em vez de reescrever cada
+   formulário. Assim, uma mudança de design mexe num lugar só.
+   =================================================================== */
+.area-entrada {
+	position: relative;
+	display: grid;
+	place-items: center;
+	min-height: 100dvh;
+	padding: 24px;
+	background: #080a18;
+	overflow: hidden;
+}
+
+/* as ondas do site, como fundo. Por background-image e não por <Image>:
+   o otimizador do Next recusa SVG e devolvia 400 */
+.area-entrada::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	background: url("/ondas.svg") center / cover no-repeat;
+	pointer-events: none;
+}
+
+.voltar-ao-site {
+	position: fixed;
+	top: 22px;
+	left: 24px;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	font-size: 13px;
+	color: rgb(255 255 255 / 0.6);
+	text-decoration: none;
+	transition: color 0.2s;
+}
+.voltar-ao-site:hover { color: #fff; }
+
+.cartao-entrada {
+	position: relative;
+	z-index: 1;
+	width: min(92vw, 460px);
+	padding: 40px clamp(26px, 7%, 48px);
+	border-radius: 28px;
+	background: rgb(255 255 255 / 0.055);
+	border: 1px solid rgb(255 255 255 / 0.13);
+	box-shadow: 0 24px 70px rgb(0 0 0 / 0.55);
+	backdrop-filter: blur(22px);
+	-webkit-backdrop-filter: blur(22px);
+}
+
+.marca-entrada {
+	display: block;
+	width: 190px;
+	max-width: 100%;
+	height: auto;
+	margin: 0 auto 26px;
+}
+
+/* ---- os componentes de dentro, vestidos para o fundo escuro ---- */
+
+/* o cartão branco do shadcn vira transparente: quem desenha a caixa é
+   o .cartao-entrada, e dois cartões empilhados ficavam com borda dupla */
+.area-entrada [data-slot="card"] {
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	padding: 0;
+	gap: 0;
+}
+.area-entrada [data-slot="card-header"] { padding: 0; }
+.area-entrada [data-slot="card-content"] { padding: 0; }
+.area-entrada [data-slot="card-title"] {
+	font-size: 22px;
+	font-weight: 600;
+	color: #fff;
+	letter-spacing: 0.4px;
+}
+.area-entrada [data-slot="card-description"] {
+	color: rgb(255 255 255 / 0.55);
+	margin-bottom: 18px;
+}
+
+.area-entrada label { color: rgb(255 255 255 / 0.78); }
+
+.area-entrada input:not([type="checkbox"]):not([type="radio"]) {
+	height: 50px;
+	border-radius: 12px;
+	background: rgb(255 255 255 / 0.07);
+	border: 1px solid rgb(255 255 255 / 0.16);
+	color: #fff;
+	font-size: 14.5px;
+}
+.area-entrada input::placeholder { color: rgb(255 255 255 / 0.45); }
+.area-entrada input:focus-visible {
+	border-color: #4c86ff;
+	background: rgb(255 255 255 / 0.1);
+	outline: none;
+	box-shadow: none;
+}
+
+.area-entrada button[type="submit"] {
+	width: 100%;
+	height: 50px;
+	border-radius: 12px;
+	background: #1d4ed8;
+	color: #fff;
+	font-size: 15px;
+	font-weight: 600;
+	transition: transform 0.2s, box-shadow 0.2s;
+}
+.area-entrada button[type="submit"]:hover:not(:disabled) {
+	background: #1d4ed8;
+	transform: translateY(-2px);
+	box-shadow: 0 10px 26px rgb(29 78 216 / 0.5);
+}
+
+/* textos de apoio e links do rodapé do formulário */
+.area-entrada p { color: rgb(255 255 255 / 0.55); }
+.area-entrada a:not(.voltar-ao-site) { color: rgb(255 255 255 / 0.75); }
+.area-entrada a:not(.voltar-ao-site):hover { color: #fff; }
+
+/* o olho de mostrar senha, que vive dentro do campo */
+.area-entrada button[type="button"] { color: rgb(255 255 255 / 0.7); }
+.area-entrada button[type="button"]:hover { color: #fff; }
+
+/* a mensagem de erro precisa ser legível no escuro */
+.area-entrada .text-destructive { color: #ff8a8a; }
+
+@media (max-width: 560px) {
+	.cartao-entrada { width: 100%; padding: 34px 24px; border-radius: 22px; }
+	.marca-entrada { width: min(170px, 50vw); }
+}
