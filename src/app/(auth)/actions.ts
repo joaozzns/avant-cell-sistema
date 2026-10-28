@@ -32,6 +32,22 @@ export async function login(_prev: { error?: string }, formData: FormData) {
   redirect("/dashboard");
 }
 
+/* Guarda só os dígitos: o cliente digita (31) 9 9999-9999, com ponto, traço
+ * ou espaço, e o que serve para mandar mensagem depois é o número limpo. */
+const soNumeros = (v: string) => v.replace(/\D/g, "");
+
+/* Celular brasileiro tem 11 dígitos com DDD, fixo tem 10. Aceita os dois e
+ * recusa o resto antes de criar a conta — telefone errado no cadastro é um
+ * cliente que ninguém consegue alcançar depois. */
+function conferirTelefone(valor: string): string | null {
+  const n = soNumeros(valor);
+  if (!n) return "Informe um telefone com DDD.";
+  if (n.length < 10) return "Telefone incompleto. Digite com DDD: (31) 99999-9999.";
+  if (n.length > 11) return "Telefone com dígitos demais. Use só DDD e número.";
+  if (/^(\d)\1+$/.test(n)) return "Esse telefone não parece válido.";
+  return null;
+}
+
 /* A regra de senha é do Supabase, não nossa: ele exige minúscula, MAIÚSCULA,
  * número e símbolo. A tela dizia "mínimo 8 caracteres, com letra e número" e a
  * validação daqui conferia só isso — então uma senha que passava nos dois era
@@ -41,7 +57,7 @@ export async function login(_prev: { error?: string }, formData: FormData) {
  * Agora a regra é conferida aqui, com a mesma exigência, e a mensagem diz o
  * que falta — uma coisa de cada vez. */
 function conferirSenha(senha: string): string | null {
-  if (senha.length < 8) return "A senha precisa de pelo menos 8 caracteres.";
+  if (senha.length < 10) return "A senha precisa de pelo menos 10 caracteres.";
   if (!/[a-z]/.test(senha)) return "Falta uma letra minúscula na senha.";
   if (!/[A-Z]/.test(senha)) return "Falta uma letra MAIÚSCULA na senha.";
   if (!/\d/.test(senha)) return "Falta um número na senha.";
@@ -63,7 +79,7 @@ function traduzirErroDeCadastro(mensagem: string): string {
     return "A senha precisa ter minúscula, MAIÚSCULA, número e símbolo.";
   }
   if (m.includes("password should be at least") || m.includes("password is too short")) {
-    return "A senha precisa de pelo menos 8 caracteres.";
+    return "A senha precisa de pelo menos 10 caracteres.";
   }
   if (m.includes("invalid email") || m.includes("unable to validate email")) {
     return "E-mail inválido. Confira se não falta algum caractere.";
@@ -82,6 +98,10 @@ export async function signup(_prev: { error?: string }, formData: FormData) {
   const fullName = String(formData.get("full_name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const telefone = String(formData.get("phone") ?? "");
+
+  const faltaNoTelefone = conferirTelefone(telefone);
+  if (faltaNoTelefone) return { error: faltaNoTelefone };
 
   const faltaNaSenha = conferirSenha(password);
   if (faltaNaSenha) return { error: faltaNaSenha };
@@ -94,7 +114,7 @@ export async function signup(_prev: { error?: string }, formData: FormData) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName } },
+    options: { data: { full_name: fullName, phone: soNumeros(telefone) } },
   });
   if (error) {
     return { error: traduzirErroDeCadastro(error.message) };

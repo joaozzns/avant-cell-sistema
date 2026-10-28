@@ -36,10 +36,22 @@ export function SignupForm({ convite, indicacao, plano }: { convite?: string; in
             <Input id="email" name="email" type="email" required autoComplete="email" />
           </div>
           <div className="grid gap-2">
+            <Label htmlFor="phone">Telefone / WhatsApp</Label>
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              inputMode="tel"
+              required
+              autoComplete="tel"
+              placeholder="(31) 99999-9999"
+            />
+          </div>
+          <div className="grid gap-2">
             <Label htmlFor="password">Senha</Label>
-            <CampoSenha id="password" name="password" required minLength={8} autoComplete="new-password" />
+            <CampoSenha id="password" name="password" required minLength={10} autoComplete="new-password" />
             <p className="text-xs text-muted-foreground">
-              Mínimo 8 caracteres, com minúscula, MAIÚSCULA, número e símbolo
+              Mínimo 10 caracteres, com letra, número e caractere especial
               <span className="mt-0.5 block">Ex.: Minhaloja2026!</span>
             </p>
           </div>
