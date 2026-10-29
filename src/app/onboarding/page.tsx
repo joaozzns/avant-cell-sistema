@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { createCompany } from "@/app/(auth)/actions";
+import { Gtm } from "@/components/gtm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,8 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-dvh grid place-items-center bg-muted/40 px-4">
+      {/* chegar aqui é a conversão: a conta acabou de ser criada */}
+      <Gtm evento="conta_criada" dados={{ plano: plano || "nenhum" }} />
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Configure sua empresa</CardTitle>

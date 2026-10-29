@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Gtm } from "@/components/gtm";
 
 /* As telas de entrar, criar conta e recuperar senha usam o mesmo visual da
  * página /entrar do site: fundo azul-marinho, as ondas azuis ao fundo e um
@@ -17,6 +18,7 @@ import Image from "next/image";
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="area-entrada">
+      <Gtm />
       <a href="https://avantcell.com.br" className="voltar-ao-site">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
