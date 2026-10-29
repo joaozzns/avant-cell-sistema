@@ -7,10 +7,13 @@ import { useEffect } from "react";
  * GA4 e as campanhas enxergarem o caminho inteiro: clicou em assinar no
  * site → criou a conta aqui.
  *
- * Só entra nas telas públicas (entrar, criar conta, recuperar senha) e na
- * de configurar a empresa. Nunca dentro do sistema: lá as telas mostram
- * clientes, valores e IMEIs, e o GTM pode carregar qualquer script que
- * alguém configurar no painel — não é lugar para isso.
+ * Só é carregado pelas telas públicas (entrar, criar conta, recuperar
+ * senha) e pela de configurar a empresa; o sistema em si não o inclui,
+ * porque lá as telas mostram clientes, valores e IMEIs e o GTM roda o que
+ * for configurado no painel. Atenção: depois de entrar, a navegação é sem
+ * recarregar a página, então o GTM já carregado segue ativo naquela aba
+ * até um recarregamento. Não configure no painel nada que leia o conteúdo
+ * da página.
  *
  * `evento` manda um aviso ao dataLayer uma única vez por sessão do
  * navegador, para recarregar a página não contar duas conversões. */
