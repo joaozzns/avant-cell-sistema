@@ -93,7 +93,8 @@ const MODULOS: Modulo[] = [
   {
     href: "/admin", label: "Administração", icon: Settings,
     itens: [
-      { href: "/admin", label: "Usuários e lojas" },
+      { href: "/admin", label: "Usuários" },
+      { href: "/admin/lojas", label: "Lojas" },
       { href: "/admin/vendedores", label: "Vendedores" },
       { href: "/admin/formas-de-pagamento", label: "Formas de pagamento" },
       { href: "/admin/termos", label: "Termos da loja" },
@@ -137,6 +138,7 @@ export function Sidebar({
   email,
   plano,
   equipeAvantCell,
+  administrador,
   onNavegar,
 }: {
   nome: string;
@@ -144,6 +146,8 @@ export function Sidebar({
   plano?: string;
   /* a área de representantes é do negócio da Avant Cell, não da loja */
   equipeAvantCell?: boolean;
+  /* dono ou administrador da empresa: só eles veem Administração */
+  administrador?: boolean;
   onNavegar?: () => void;
 }) {
   const pathname = usePathname();
@@ -179,7 +183,9 @@ export function Sidebar({
     }
   }
 
-  const permitidos = equipeAvantCell ? MODULOS_EQUIPE : MODULOS;
+  const permitidos = equipeAvantCell
+    ? MODULOS_EQUIPE
+    : administrador ? MODULOS : MODULOS.filter((m) => m.href !== "/admin");
 
   const termo = busca.trim().toLowerCase();
   const visiveis = termo

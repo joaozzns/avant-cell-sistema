@@ -48,7 +48,7 @@ export default async function AdminPage() {
   return (
     <div className="grid gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold tracking-tight">Administração</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Usuários</h1>
         <Link href="/admin/auditoria" className={buttonVariants({ variant: "outline" })}>
           Log de auditoria
         </Link>
@@ -67,18 +67,6 @@ export default async function AdminPage() {
         />
 
         <div className="grid content-start gap-6">
-          <Card>
-            <CardHeader><CardTitle className="text-base">Lojas</CardTitle></CardHeader>
-            <CardContent className="grid gap-2 text-sm">
-              {(stores ?? []).map((s) => (
-                <div key={s.id} className="flex items-center justify-between rounded border px-3 py-2">
-                  <span className="font-medium">{s.name}</span>
-                  {!s.active && <Badge variant="destructive">inativa</Badge>}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Perfis de acesso</CardTitle>

@@ -32,7 +32,7 @@ export const getSessionContext = cache(async () => {
       .single(),
     supabase
       .from("user_stores")
-      .select("store_id, stores(id, name, active)")
+      .select("store_id, stores(id, name, active), roles(key)")
       .eq("user_id", userId),
   ]);
 
@@ -50,6 +50,14 @@ export const getSessionContext = cache(async () => {
   const store = lojas.find((l) => l.id === escolhida) ?? lojas[0];
   if (!store) redirect("/onboarding");
 
+  /* Administração (usuários, lojas, formas de pagamento, termos, auditoria)
+     é do dono e de quem ele fez administrador. Vendedor, técnico, estoquista,
+     financeiro e gerente não veem o menu nem abrem as páginas. */
+  const administrador = userStore.some((v) => {
+    const papel = (v.roles as unknown as { key?: string } | null)?.key;
+    return papel === "owner" || papel === "admin";
+  });
+
   const company = profile.companies as unknown as { name?: string } | null;
 
   return {
@@ -60,6 +68,7 @@ export const getSessionContext = cache(async () => {
     companyId: profile.company_id as string,
     companyName: company?.name,
     equipeAvantCell: Boolean(profile.is_staff),
+    administrador,
     storeId: store.id,
     storeName: store.name,
     lojas: lojas.map((l) => ({ id: l.id, nome: l.name })),

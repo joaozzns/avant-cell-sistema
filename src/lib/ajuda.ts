@@ -50,7 +50,7 @@ export const ARTIGOS: Artigo[] = [
         "Formas de pagamento (Administração > Formas de pagamento). Sem elas o PDV não fecha venda.",
         "Produtos (Estoque > Catálogo). Comece pelos dez que mais vendem; o resto entra depois.",
         "Aparelhos com IMEI (Estoque > Aparelhos), se você vende celular. Cada aparelho é uma unidade com IMEI próprio.",
-        "Equipe (Administração > Usuários e lojas). Convide por e-mail e escolha o papel de cada um.",
+        "Equipe (Administração > Usuários). Convide por e-mail e escolha o papel de cada um.",
         "Termos de garantia e serviço (Administração > Termos), se você faz assistência. Eles saem impressos na OS.",
         "Fiscal (Fiscal > Configurações), quando for emitir nota.",
       ] },
@@ -66,7 +66,7 @@ export const ARTIGOS: Artigo[] = [
     corpo: [
       { tipo: "texto", conteudo: "Cada pessoa entra com o próprio login. Não compartilhe senha: o sistema registra quem fez cada venda, cada desconto e cada sangria, e isso só funciona se cada um for ele mesmo." },
       { tipo: "passos", itens: [
-        "Administração > Usuários e lojas > Convidar.",
+        "Administração > Usuários > Convidar.",
         "Digite o e-mail, escolha a loja e o papel.",
         "A pessoa recebe um link, cria a senha dela e já entra.",
       ] },
@@ -80,6 +80,25 @@ export const ARTIGOS: Artigo[] = [
         "Financeiro — contas a pagar e receber, conciliação.",
       ] },
       { tipo: "aviso", conteudo: "O papel do Proprietário não pode ser alterado nem removido, e ninguém consegue mudar o próprio papel. É proposital: impede que alguém se promova sozinho." },
+      { tipo: "texto", conteudo: "O menu Administração só aparece para o Proprietário e para quem ele fizer Administrador. Os demais papéis não veem o menu e não abrem essas telas, nem digitando o endereço." },
+    ],
+  },
+  {
+    slug: "nova-loja",
+    titulo: "Abrir uma nova loja",
+    modulo: "Primeiros passos",
+    resumo: "Segunda unidade, quiosque ou depósito no mesmo sistema.",
+    telas: ["/admin/lojas"],
+    corpo: [
+      { tipo: "texto", conteudo: "Cada loja tem caixa, estoque e numeração de venda e OS próprios. Clientes, catálogo de produtos e formas de pagamento são da empresa e valem para todas." },
+      { tipo: "passos", itens: [
+        "Administração > Lojas > Nova loja.",
+        "Informe o nome (é o que aparece no topo da tela e no cupom). CNPJ e telefone podem ficar para depois.",
+        "Pronto: a loja já tem o próprio caixa, e todo Proprietário da empresa já tem acesso a ela.",
+        "Para a equipe da loja nova, vá em Administração > Usuários > Convidar e escolha essa loja.",
+      ] },
+      { tipo: "texto", conteudo: "Quem trabalha em mais de uma loja troca de loja pelo seletor no topo da tela. As vendas e o caixa vão sempre para a loja que está escolhida ali." },
+      { tipo: "aviso", conteudo: "Loja fechada não precisa ser apagada: desative. Ela some do seletor e de novas vendas, mas o histórico continua nos relatórios." },
     ],
   },
   {
@@ -175,7 +194,7 @@ export const ARTIGOS: Artigo[] = [
       { tipo: "texto", conteudo: "Cada papel tem um limite de desconto. Quando o PDV recusa, é porque o valor passou da alçada de quem está logado — não é erro." },
       { tipo: "lista", itens: [
         "Peça para o gerente lançar a venda, ou",
-        "Aumente o limite daquele papel em Administração > Usuários e lojas.",
+        "Aumente o limite daquele papel em Administração > Usuários.",
       ] },
       { tipo: "aviso", conteudo: "Existe também o preço mínimo por produto, cadastrado no catálogo. Ele vale para todo mundo, inclusive o proprietário: é a trava que impede vender abaixo do custo por engano." },
     ],

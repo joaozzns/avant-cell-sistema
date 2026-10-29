@@ -66,7 +66,7 @@ const NAVEGAVEIS = new Set([
   "/financeiro", "/financeiro/receber", "/financeiro/pagar", "/financeiro/dre",
   "/fiscal", "/fiscal/configuracoes",
   "/relatorios", "/relatorios/vendas", "/relatorios/assistencia", "/relatorios/estoque",
-  "/parceiros", "/cobranca", "/admin", "/admin/auditoria", "/admin/termos", "/admin/formas-de-pagamento", "/admin/vendedores", "/portal", "/importar",
+  "/parceiros", "/cobranca", "/admin", "/admin/lojas", "/admin/auditoria", "/admin/termos", "/admin/formas-de-pagamento", "/admin/vendedores", "/portal", "/importar",
 ]);
 
 export function Trilha() {
