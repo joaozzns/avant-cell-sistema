@@ -71,3 +71,7 @@ $$;
 
 revoke all on function public.criar_loja(text, text, text) from public;
 grant execute on function public.criar_loja(text, text, text) to authenticated;
+
+-- o Supabase concede execute ao anon por padrão em funções novas; a função
+-- já recusa quem não está logado, mas não há motivo para o anon chamá-la
+revoke execute on function public.criar_loja(text, text, text) from anon;
