@@ -8,6 +8,12 @@ import { imeiValido } from "@/lib/imei";
 
 export type ActionState = { error?: string; ok?: boolean };
 
+/* só volta para telas do próprio estoque: o campo vem do formulário */
+function destino(voltar: FormDataEntryValue | null) {
+  const v = String(voltar ?? "");
+  return v === "/estoque/acessorios" || v === "/estoque/aparelhos" ? v : "/estoque";
+}
+
 export async function saveProduct(
   _prev: ActionState,
   formData: FormData
@@ -54,8 +60,8 @@ export async function saveProduct(
       };
     }
   }
-  revalidatePath("/estoque");
-  redirect("/estoque");
+  revalidatePath("/estoque", "layout");
+  redirect(destino(formData.get("voltar")));
 }
 
 export async function toggleProductActive(id: string, active: boolean) {
@@ -68,9 +74,15 @@ export async function toggleProductActive(id: string, active: boolean) {
 export async function saveCategory(formData: FormData) {
   const { supabase, companyId } = await getSessionContext();
   const name = String(formData.get("name") ?? "").trim();
+  const tipo = String(formData.get("kind") ?? "");
+  const kind = tipo === "device" || tipo === "accessory" ? tipo : null;
   if (!name) return;
-  await supabase.from("categories").insert({ company_id: companyId, name });
-  revalidatePath("/estoque/categorias");
+  const { error } = await supabase.from("categories").insert({ company_id: companyId, name, ...(kind && { kind }) });
+  /* migração 075 ainda não aplicada: grava sem tipo, que vale para os dois lados */
+  if (error?.code === "PGRST204" || error?.code === "42703") {
+    await supabase.from("categories").insert({ company_id: companyId, name });
+  }
+  revalidatePath("/estoque", "layout");
 }
 
 export async function saveBrand(formData: FormData) {

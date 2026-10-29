@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { saveProduct, type ActionState } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { categoriasDoTipo, type Categoria } from "@/lib/categorias";
 
 type Option = { id: string; name: string };
 
@@ -13,20 +14,30 @@ export function ProductForm({
   product,
   categories,
   brands,
+  tipoInicial,
+  voltar,
 }: {
   product?: Record<string, unknown> | null;
-  categories: Option[];
+  categories: Categoria[];
   brands: Option[];
+  /* quem abre o cadastro por Estoque › Acessórios já chega com o tipo certo */
+  tipoInicial?: string;
+  /* para onde voltar depois de salvar */
+  voltar?: string;
 }) {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     saveProduct,
     {}
   );
   const p = (product ?? {}) as Record<string, string | number | boolean | null>;
+  const [tipo, setTipo] = useState(String(p.type ?? tipoInicial ?? "accessory"));
+  /* capinha não oferece "Seminovos" como categoria, e vice-versa */
+  const opcoes = categoriasDoTipo(categories, tipo);
 
   return (
     <form action={formAction} className="grid max-w-3xl gap-6">
       {p.id && <input type="hidden" name="id" value={String(p.id)} />}
+      {voltar && <input type="hidden" name="voltar" value={voltar} />}
 
       <Card>
         <CardHeader><CardTitle>Dados básicos</CardTitle></CardHeader>
@@ -37,7 +48,7 @@ export function ProductForm({
           </div>
           <div className="grid gap-2">
             <Label htmlFor="type">Tipo</Label>
-            <select id="type" name="type" defaultValue={String(p.type ?? "accessory")}
+            <select id="type" name="type" value={tipo} onChange={(e) => setTipo(e.target.value)}
               className="h-9 rounded-md border bg-transparent px-3 text-sm">
               <option value="device">Aparelho</option>
               <option value="accessory">Acessório</option>
@@ -50,7 +61,7 @@ export function ProductForm({
             <select id="category_id" name="category_id" defaultValue={String(p.category_id ?? "")}
               className="h-9 rounded-md border bg-transparent px-3 text-sm">
               <option value="">—</option>
-              {categories.map((c) => (
+              {opcoes.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
@@ -110,7 +121,7 @@ export function ProductForm({
         <CardHeader><CardTitle>Controles</CardTitle></CardHeader>
         <CardContent className="grid gap-3 text-sm">
           <label className="flex items-center gap-2">
-            <input type="checkbox" name="serialized" defaultChecked={Boolean(p.serialized)} />
+            <input type="checkbox" name="serialized" defaultChecked={p.id ? Boolean(p.serialized) : tipo === "device"} />
             Controlar por IMEI / número de série (cada unidade é única)
           </label>
           <label className="flex items-center gap-2">

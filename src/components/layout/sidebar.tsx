@@ -35,10 +35,11 @@ const MODULOS: Modulo[] = [
   {
     href: "/estoque", label: "Compras / Estoque", icon: Package,
     itens: [
-      { href: "/estoque", label: "Catálogo" },
+      { href: "/estoque", label: "Estoque" },
+      { href: "/estoque/acessorios", label: "Acessórios" },
       { href: "/estoque/aparelhos", label: "Aparelhos" },
       { href: "/estoque/usado", label: "Usado na troca" },
-      { href: "/estoque/categorias", label: "Categorias" },
+      { href: "/estoque/categorias", label: "Marcas e categorias" },
       { href: "/estoque/transferencias", label: "Transferências" },
       { href: "/estoque/inventario", label: "Inventário" },
       { href: "/estoque/movimentacoes", label: "Movimentações" },

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getSessionContext } from "@/lib/context";
+import { lerCategorias } from "@/lib/categorias";
 import { ProductForm } from "../product-form";
 import { StockAdjustForm } from "../stock-adjust-form";
 
@@ -11,10 +12,10 @@ export default async function EditProductPage({
   const { id } = await params;
   const { supabase, storeId } = await getSessionContext();
 
-  const [{ data: product }, { data: categories }, { data: brands }] =
+  const [{ data: product }, categories, { data: brands }] =
     await Promise.all([
       supabase.from("products").select("*").eq("id", id).maybeSingle(),
-      supabase.from("categories").select("id, name").eq("active", true).order("name"),
+      lerCategorias(supabase, { soAtivas: true }),
       supabase.from("brands").select("id, name").eq("active", true).order("name"),
     ]);
   if (!product) notFound();
@@ -37,7 +38,8 @@ export default async function EditProductPage({
       {!product.serialized && product.type !== "service" && (
         <StockAdjustForm productId={id} />
       )}
-      <ProductForm product={product} categories={categories ?? []} brands={brands ?? []} />
+      <ProductForm product={product} categories={categories}
+        voltar={product.type === "accessory" ? "/estoque/acessorios" : product.type === "device" ? "/estoque/aparelhos" : undefined} brands={brands ?? []} />
     </div>
   );
 }

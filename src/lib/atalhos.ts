@@ -34,6 +34,7 @@ export const CATALOGO: Atalho[] = [
   { id: "avisos",        rotulo: "Avisos ao cliente",    href: "/clientes/avisos",          icone: "BellRing",          grupo: "Clientes" },
 
   { id: "estoque",       rotulo: "Estoque",              href: "/estoque",                  icone: "Package",           grupo: "Estoque" },
+  { id: "acessorios",    rotulo: "Acessórios",           href: "/estoque/acessorios",       icone: "Package",           grupo: "Estoque" },
   { id: "aparelhos",     rotulo: "Aparelhos",           href: "/estoque/aparelhos",        icone: "Boxes",             grupo: "Estoque" },
   { id: "inventario",    rotulo: "Inventário",           href: "/estoque/inventario",       icone: "Boxes",             grupo: "Estoque" },
   { id: "movimentacoes", rotulo: "Movimentações",        href: "/estoque/movimentacoes",    icone: "Boxes",             grupo: "Estoque" },

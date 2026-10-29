@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSessionContext } from "@/lib/context";
 import { brl, fmtDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
@@ -5,6 +6,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { UnitForm } from "./unit-form";
+import { ProdutosPorTipo } from "../por-tipo";
 
 const STATUS_LABEL: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   available: { label: "Disponível", variant: "default" },
@@ -17,7 +19,12 @@ const STATUS_LABEL: Record<string, { label: string; variant: "default" | "second
   in_transit: { label: "Em trânsito", variant: "secondary" },
 };
 
-export default async function UnitsPage() {
+export default async function UnitsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ categoria?: string }>;
+}) {
+  const { categoria } = await searchParams;
   const { supabase } = await getSessionContext();
 
   const [{ data: units }, { data: deviceProducts }] = await Promise.all([
@@ -36,24 +43,34 @@ export default async function UnitsPage() {
 
   return (
     <div className="grid gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Aparelhos</h1>
+        <p className="text-sm text-muted-foreground">
+          O modelo (ex.: iPhone 15 128 GB) é o produto; cada aparelho físico entra
+          como unidade com IMEI próprio.
+        </p>
+      </div>
+
+      <ProdutosPorTipo tipo="device" categoria={categoria} />
+
+      <div className="flex flex-wrap items-start justify-between gap-3 border-t pt-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Aparelhos com IMEI</h1>
+          <h2 className="text-lg font-semibold tracking-tight">Unidades com IMEI</h2>
           <p className="text-sm text-muted-foreground">
             Cada aparelho é uma unidade única e rastreável. O IMEI é validado
             (dígito verificador) e não pode se repetir na empresa.
           </p>
         </div>
-        <a href="/estoque/usado"
+        <Link href="/estoque/usado"
           className="shrink-0 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
           + Comprar usado
-        </a>
+        </Link>
       </div>
 
       {(deviceProducts ?? []).length === 0 ? (
         <p className="rounded-lg border bg-background p-4 text-sm text-muted-foreground">
-          Para dar entrada em aparelhos, primeiro cadastre um produto do tipo
-          <strong> Aparelho</strong> com “Controlar por IMEI” marcado.
+          Para dar entrada em aparelhos, primeiro cadastre o modelo em
+          <strong> Novo modelo</strong>, acima.
         </p>
       ) : (
         <UnitForm products={deviceProducts ?? []} />

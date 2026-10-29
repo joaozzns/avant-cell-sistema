@@ -37,14 +37,14 @@ export default async function ProductsPage({
     <div className="grid gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Catálogo e estoque</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Estoque</h1>
           <p className="text-sm text-muted-foreground">
             {products?.length ?? 0} produtos · saldo da loja ativa
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href="/estoque/categorias" className={buttonVariants({ variant: "outline" })}>
-            Categorias e marcas
+          <Link href="/estoque/acessorios" className={buttonVariants({ variant: "outline" })}>
+            Acessórios
           </Link>
           <Link href="/estoque/aparelhos" className={buttonVariants({ variant: "outline" })}>
             Aparelhos

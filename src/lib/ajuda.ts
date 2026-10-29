@@ -48,8 +48,8 @@ export const ARTIGOS: Artigo[] = [
       { tipo: "texto", conteudo: "Não é preciso cadastrar tudo antes de vender. Dá para começar pelo caixa no mesmo dia e ir completando o resto conforme a loja usa. O que não dá é inverter a ordem abaixo: cada passo depende do anterior." },
       { tipo: "passos", itens: [
         "Formas de pagamento (Administração > Formas de pagamento). Sem elas o PDV não fecha venda.",
-        "Produtos (Estoque > Catálogo). Comece pelos dez que mais vendem; o resto entra depois.",
-        "Aparelhos com IMEI (Estoque > Aparelhos), se você vende celular. Cada aparelho é uma unidade com IMEI próprio.",
+        "Categorias e produtos (Estoque > Acessórios e Estoque > Aparelhos). Crie as categorias primeiro, depois os produtos. Comece pelos dez que mais vendem; o resto entra depois.",
+        "Aparelhos com IMEI (Estoque > Aparelhos > Unidades com IMEI), se você vende celular. Cada aparelho é uma unidade com IMEI próprio.",
         "Equipe (Administração > Usuários). Convide por e-mail e escolha o papel de cada um.",
         "Termos de garantia e serviço (Administração > Termos), se você faz assistência. Eles saem impressos na OS.",
         "Fiscal (Fiscal > Configurações), quando for emitir nota.",
