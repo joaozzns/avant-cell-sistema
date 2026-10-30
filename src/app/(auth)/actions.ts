@@ -148,6 +148,8 @@ export async function requestPasswordReset(
 export async function logout() {
   const supabase = await createClient();
   await supabase.auth.signOut();
+  /* sem isto o navegador guarda as telas da sessão que acabou */
+  revalidatePath("/", "layout");
   redirect("/login");
 }
 

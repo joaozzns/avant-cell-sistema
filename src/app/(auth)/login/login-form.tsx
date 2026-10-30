@@ -11,7 +11,7 @@ import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
 } from "@/components/ui/card";
 
-export function LoginForm({ convite }: { convite?: string }) {
+export function LoginForm({ convite, semLoja }: { convite?: string; semLoja?: boolean }) {
   const [state, formAction, pending] = useActionState<{ error?: string }, FormData>(login, {});
 
   return (
@@ -39,6 +39,11 @@ export function LoginForm({ convite }: { convite?: string }) {
             </div>
             <CampoSenha id="password" name="password" required autoComplete="current-password" />
           </div>
+          {semLoja && !state?.error && (
+            <p className="text-sm text-destructive">
+              Sua conta não está ligada a nenhuma loja ativa. Fale com o dono da empresa.
+            </p>
+          )}
           {state?.error && (
             <p className="text-sm text-destructive">{state.error}</p>
           )}

@@ -36,7 +36,12 @@ export const getSessionContext = cache(async () => {
       .eq("user_id", userId),
   ]);
 
-  if (!profile?.company_id || !userStore?.length) redirect("/onboarding");
+  /* "Configure sua empresa" é só para quem de fato não tem empresa. Antes,
+     qualquer falha ao ler o perfil (sessão encerrada, erro de rede) caía
+     nessa tela, e um dono de loja era convidado a criar outra empresa. */
+  if (!profile) redirect("/login");
+  if (!profile.company_id) redirect("/onboarding");
+  if (!userStore?.length) redirect("/login?aviso=sem-loja");
 
   /* Todas as lojas em que a pessoa trabalha. Antes o sistema pegava a primeira
      e pronto: quem cuidava de duas lojas só enxergava uma, e não tinha como
@@ -48,7 +53,7 @@ export const getSessionContext = cache(async () => {
 
   const escolhida = (await cookies()).get("avc-loja")?.value;
   const store = lojas.find((l) => l.id === escolhida) ?? lojas[0];
-  if (!store) redirect("/onboarding");
+  if (!store) redirect("/login?aviso=sem-loja");
 
   /* Administração (usuários, lojas, formas de pagamento, termos, auditoria)
      é do dono e de quem ele fez administrador. Vendedor, técnico, estoquista,
